@@ -1,0 +1,769 @@
+.landing-page {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #f0f1ff;
+}
+
+.hero {
+  position: relative;
+  height: 865px;
+  overflow: hidden;
+  background: linear-gradient(
+    245.9256deg,
+    #0515fa 0%,
+    #fff 100%
+  );
+}
+
+.site-header {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 88px;
+}
+
+.landing-brand {
+  position: absolute;
+  inset: 44px auto auto calc(50% - 556px);
+  display: block;
+  width: 260px;
+  height: 53px;
+  overflow: visible;
+  border-radius: 10px;
+}
+
+.landing-brand img,
+.role-selector__logo img {
+  position: absolute;
+  top: -8px;
+  left: -2px;
+  width: 67px;
+  height: 67px;
+  max-width: none;
+  object-fit: cover;
+}
+
+.landing-brand span {
+  position: absolute;
+  top: 14px;
+  left: 80px;
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.main-nav {
+  position: absolute;
+  top: 44px;
+  left: calc(50% + 23px);
+  display: grid;
+  width: 560px;
+  height: 44px;
+  grid-template-columns: repeat(4, 132px);
+}
+
+.nav-link {
+  display: flex;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: 8px;
+  color: #000;
+  font-size: 16px;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  background-color: #0515fa;
+  color: #fff;
+  font-weight: 600;
+}
+
+.hero-copy {
+  position: absolute;
+  top: 24.97%;
+  left: 11.53%;
+  width: 55.55%;
+  color: #000;
+}
+
+.hero-copy h1 {
+  max-width: 800px;
+  margin: 0;
+  font-size: 64px;
+  font-weight: 700;
+  letter-spacing: -1.28px;
+  line-height: 1.2;
+}
+
+.hero-copy p {
+  width: min(700px, 100%);
+  margin: 24px 0 0;
+  font-size: 24px;
+  line-height: normal;
+}
+
+.hero-art {
+  position: absolute;
+  inset: 17.57% 2.5% 24.62% 62.78%;
+}
+
+.hero-art img {
+  object-fit: cover;
+}
+
+.login-button {
+  position: absolute;
+  top: 71.45%;
+  left: 11.53%;
+  display: flex;
+  width: 331px;
+  height: 67px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #0515fa;
+  border-radius: 15px;
+  background: transparent;
+  color: #0515fa;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.login-button:hover {
+  background-color: #0515fa;
+  color: #fff;
+  font-weight: 700;
+}
+
+.services {
+  height: 845px;
+  padding: 76px 24px 262px;
+  background: #f0f1ff;
+  scroll-margin-top: 104px;
+}
+
+.services__inner {
+  position: relative;
+  width: min(1112px, 100%);
+  height: 507px;
+  margin: 0 auto;
+}
+
+.section-heading {
+  text-align: center;
+}
+
+.section-heading h2 {
+  margin: 0;
+  color: #0515fa;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.section-heading p {
+  margin: 14px 0 0;
+  font-size: 20px;
+  line-height: normal;
+}
+
+.service-grid {
+  position: absolute;
+  top: 179px;
+  left: 0;
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(4, 248px);
+  gap: 40px;
+}
+
+.service-card {
+  position: relative;
+  height: 328px;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+}
+
+.service-card__circle {
+  transition: filter 300ms ease-out;
+}
+
+.service-card__description {
+  position: absolute;
+  top: 64%;
+  left: 18px;
+  width: calc(100% - 36px);
+  margin: 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  opacity: 0;
+}
+
+.service-card:first-child {
+  top: -3px;
+}
+
+.service-card:hover {
+  background-image: linear-gradient(135deg, #0515fa 0%, #a5adff 100%);
+  box-shadow: 0 12px 28px rgb(5 21 250 / 22%);
+}
+
+.service-card:hover h3 {
+  color: #fff;
+}
+
+.service-card:hover .service-card__description {
+  opacity: 1;
+}
+
+.service-card:hover .service-card__circle {
+  filter: brightness(0) invert(1);
+}
+
+.service-card__icon {
+  position: absolute;
+  top: 79px;
+  left: 50%;
+  width: 85px;
+  height: 85px;
+  transform: translateX(-50%);
+}
+
+.service-card__icon > img:first-child {
+  object-fit: contain;
+}
+
+.service-card__icon .service-card__symbol {
+  top: 8px !important;
+  left: 9.5px !important;
+  width: 65px !important;
+  height: 65px !important;
+  object-fit: contain;
+}
+
+.service-card h3 {
+  position: absolute;
+  top: 54.57%;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  color: #0515fa;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.workflow {
+  position: relative;
+  height: 581px;
+  padding: 54px 24px 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #0515fa 0%, #000 162.22%);
+  color: #fff;
+  scroll-margin-top: 104px;
+}
+
+.section-heading--light h2 {
+  color: #fff;
+  font-size: 48px;
+  line-height: normal;
+}
+
+.section-heading--light p {
+  width: min(792px, 100%);
+  margin: 12px auto 0;
+  font-size: 20px;
+  line-height: normal;
+}
+
+.workflow-list {
+  position: absolute;
+  top: 47.33%;
+  left: 50%;
+  display: flex;
+  width: min(1019px, calc(100% - 48px));
+  align-items: center;
+  justify-content: space-between;
+  transform: translateX(-50%);
+}
+
+.workflow-item {
+  display: contents;
+}
+
+.workflow-card {
+  display: flex;
+  position: relative;
+  width: 152px;
+  height: 202px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  border-radius: 5px;
+  background: #fff;
+  color: #000;
+  text-align: center;
+  flex-direction: column;
+}
+
+.workflow-item:last-child .workflow-card {
+  width: 154px;
+}
+
+.workflow-card h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.workflow-card__description {
+  max-height: 0;
+  margin: 0;
+  overflow: hidden;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.4;
+  opacity: 0;
+}
+
+.workflow-card:hover {
+  background-image: linear-gradient(180deg, #333 0%, #000 100%);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 22%);
+  color: #fff;
+}
+
+.workflow-card:hover h3 {
+  color: #fff;
+}
+
+.workflow-card:hover .workflow-card__description {
+  max-height: 90px;
+  margin-top: 4px;
+  opacity: 1;
+}
+
+.workflow-arrow {
+  flex: none;
+  object-fit: contain;
+}
+
+.site-footer {
+  height: 271px;
+  padding: 20px 24px 0;
+  background: linear-gradient(165deg, #303030 0%, #171717 100%);
+  color: #fff;
+  scroll-margin-top: 104px;
+}
+
+.site-footer__inner {
+  position: relative;
+  width: min(1100px, 100%);
+  height: 100%;
+  margin: 0 auto;
+}
+
+.site-footer h2 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.footer-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 313px;
+  margin-top: 20px;
+}
+
+.footer-columns h3 {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-row {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.contact-row img {
+  flex: none;
+  object-fit: contain;
+}
+
+.footer-social {
+  justify-self: end;
+}
+
+.social-row,
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.social-row a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-row img {
+  object-fit: contain;
+}
+
+.footer-brand {
+  margin-top: 24px;
+}
+
+.footer-brand img {
+  object-fit: contain;
+}
+
+@media (max-width: 1200px) and (min-width: 721px) {
+  .hero-copy {
+    left: 7%;
+    width: 58%;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(44px, 5vw, 60px);
+  }
+
+  .hero-copy p {
+    font-size: clamp(18px, 2vw, 22px);
+  }
+
+  .hero-art {
+    right: 2%;
+    left: 61%;
+  }
+
+  .site-header {
+    left: 0;
+    width: 100%;
+  }
+
+  .main-nav {
+    right: 0;
+    left: auto;
+    top: 24px;
+    width: 54%;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .landing-brand {
+    top: 24px;
+    left: 5%;
+  }
+
+  .landing-brand span {
+    left: 78px;
+  }
+
+  .services {
+    height: auto;
+    min-height: 845px;
+  }
+
+  .services__inner {
+    height: auto;
+    min-height: 507px;
+  }
+
+  .service-grid {
+    position: relative;
+    top: auto;
+    grid-template-columns: repeat(2, minmax(0, 248px));
+    justify-content: center;
+    gap: 28px;
+    margin-top: 78px;
+  }
+
+  .workflow-list {
+    width: min(920px, calc(100% - 48px));
+    gap: 16px;
+  }
+
+  .workflow-arrow {
+    width: clamp(28px, 4vw, 48px);
+  }
+}
+
+@media (max-width: 720px) {
+  .hero {
+    display: flex;
+    height: auto;
+    min-height: 900px;
+    flex-direction: column;
+    padding: 112px 24px 48px;
+  }
+
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    width: 100%;
+    height: auto;
+    min-height: 104px;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 12px 16px 8px;
+    transform: none;
+  }
+
+  .landing-brand {
+    position: relative;
+    inset: auto;
+    width: 250px;
+    flex: none;
+  }
+
+  .landing-brand span {
+    left: 72px;
+    font-size: 16px;
+  }
+
+  .main-nav {
+    position: relative;
+    top: auto;
+    left: auto;
+    display: flex;
+    width: 100%;
+    height: auto;
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .nav-link {
+    height: 36px;
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .hero-copy {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    margin-top: 32px;
+  }
+
+  .hero-copy h1 {
+    max-width: 620px;
+    font-size: clamp(36px, 9vw, 54px);
+    letter-spacing: -0.7px;
+  }
+
+  .hero-copy p {
+    max-width: 560px;
+    margin-top: 18px;
+    font-size: 17px;
+    line-height: 1.4;
+  }
+
+  .hero-art {
+    position: relative;
+    inset: auto;
+    width: min(88vw, 400px);
+    height: min(88vw, 400px);
+    align-self: center;
+    margin-top: 12px;
+  }
+
+  .login-button {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: min(331px, 100%);
+    height: 58px;
+    flex: none;
+    align-self: flex-start;
+    margin-top: 16px;
+  }
+
+  .services {
+    height: auto;
+    padding: 60px 20px 100px;
+  }
+
+  .services__inner {
+    height: auto;
+  }
+
+  .section-heading h2,
+  .section-heading--light h2 {
+    font-size: clamp(32px, 8vw, 42px);
+  }
+
+  .section-heading p,
+  .section-heading--light p {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .service-grid {
+    position: relative;
+    top: auto;
+    grid-template-columns: repeat(2, minmax(0, 248px));
+    justify-content: center;
+    gap: 16px;
+    margin-top: 36px;
+  }
+
+  .service-card {
+    width: 100%;
+    height: 250px;
+  }
+
+  .service-card:first-child {
+    top: 0;
+  }
+
+  .service-card__icon {
+    top: 50px;
+  }
+
+  .service-card h3 {
+    top: 155px;
+    padding: 0 8px;
+    font-size: clamp(14px, 3.5vw, 18px);
+    white-space: normal;
+  }
+
+  .workflow {
+    height: auto;
+    min-height: 0;
+    padding: 56px 20px 64px;
+  }
+
+  .workflow-list {
+    position: relative;
+    top: auto;
+    left: auto;
+    display: grid;
+    width: min(540px, 100%);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 36px auto 0;
+    transform: none;
+  }
+
+  .workflow-item {
+    display: block;
+  }
+
+  .workflow-card,
+  .workflow-item:last-child .workflow-card {
+    width: 100%;
+    height: 148px;
+    padding: 12px;
+  }
+
+  .workflow-card h3 {
+    font-size: 14px;
+  }
+
+  .workflow-arrow {
+    display: none;
+  }
+
+  .site-footer {
+    height: auto;
+    min-height: 271px;
+    padding: 28px 20px 32px;
+  }
+
+  .site-footer h2 {
+    font-size: 24px;
+  }
+
+  .footer-columns {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-top: 20px;
+  }
+
+  .footer-columns h3 {
+    font-size: 20px;
+  }
+
+  .footer-contact {
+    gap: 12px;
+  }
+
+  .contact-row {
+    align-items: flex-start;
+    font-size: 12px;
+  }
+
+  .footer-social {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero {
+    min-height: 820px;
+  }
+
+  .main-nav {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    column-gap: 4px;
+  }
+
+  .nav-link {
+    padding-inline: 5px;
+    font-size: 11px;
+  }
+
+  .service-grid {
+    grid-template-columns: minmax(0, 248px);
+  }
+
+  .service-card {
+    height: 220px;
+  }
+
+  .service-card__icon {
+    top: 32px;
+  }
+
+  .service-card h3 {
+    top: 135px;
+  }
+}

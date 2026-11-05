@@ -9,19 +9,270 @@ datasource db {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model transaksi {
-  id_transaksi Int      @id @default(autoincrement())
-  id_user      Int
-  nama_barang  String   @db.VarChar(100)
-  jumlah       Int
-  harga_satuan Decimal  @db.Decimal(12, 2)
-  tanggal      DateTime @default(now()) @db.Timestamp(6)
-  users        users    @relation(fields: [id_user], references: [id_user])
+  id_transaksi      String     @id @db.VarChar(4)
+  tanggal_transaksi DateTime   @default(dbgenerated("CURRENT_DATE")) @db.Date
+  id_laporan        String?    @db.VarChar(4)
+  id_pembayaran     String     @unique @db.VarChar(4)
+  laporan           laporan?   @relation(fields: [id_laporan], references: [id_laporan], onDelete: NoAction, onUpdate: NoAction)
+  pembayaran        pembayaran @relation(fields: [id_pembayaran], references: [id_pembayaran], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id_laporan], map: "idx_transaksi_laporan")
 }
 
-model users {
-  id_user   Int         @id @default(autoincrement())
-  nama      String      @db.VarChar(100)
-  username  String      @unique @db.VarChar(50)
-  role      String      @db.VarChar(20)
-  transaksi transaksi[]
+model customer {
+  id_customer String      @id @db.VarChar(4)
+  id_pengguna String      @unique @db.VarChar(4)
+  pengguna    pengguna    @relation(fields: [id_pengguna], references: [id_pengguna], onDelete: Cascade, onUpdate: NoAction)
+  kendaraan   kendaraan[]
+}
+
+model kasir {
+  id_kasir    String       @id @db.VarChar(4)
+  id_pengguna String       @unique @db.VarChar(4)
+  pengguna    pengguna     @relation(fields: [id_pengguna], references: [id_pengguna], onDelete: Cascade, onUpdate: NoAction)
+  pembayaran  pembayaran[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model kendaraan {
+  id_kendaraan    String   @id @db.VarChar(4)
+  id_customer     String   @db.VarChar(4)
+  nomor_plat      String   @unique @db.VarChar(15)
+  merek           String   @db.VarChar(50)
+  tipe_kendaraan  String   @db.VarChar(50)
+  tahun_kendaraan Int
+  nomor_rangka    String?  @unique @db.VarChar(30)
+  kilometer       Int?
+  customer        customer @relation(fields: [id_customer], references: [id_customer], onDelete: Cascade, onUpdate: NoAction)
+  servis          servis[]
+
+  @@index([id_customer], map: "idx_kendaraan_customer")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model laporan {
+  id_laporan       String      @id @db.VarChar(4)
+  jenis_laporan    String      @db.VarChar(50)
+  periode_awal     DateTime    @db.Date
+  periode_akhir    DateTime    @db.Date
+  tanggal_dibuat   DateTime    @default(dbgenerated("CURRENT_DATE")) @db.Date
+  total_servis     Int         @default(0)
+  total_pendapatan Decimal     @default(0) @db.Decimal(12, 2)
+  id_owner         String      @db.VarChar(4)
+  owner            owner       @relation(fields: [id_owner], references: [id_owner], onDelete: NoAction, onUpdate: NoAction)
+  transaksi        transaksi[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model mekanik {
+  id_mekanik          String              @id @db.VarChar(4)
+  status_ketersediaan String              @default("Tersedia") @db.VarChar(20)
+  id_pengguna         String              @unique @db.VarChar(4)
+  pengguna            pengguna            @relation(fields: [id_pengguna], references: [id_pengguna], onDelete: Cascade, onUpdate: NoAction)
+  penugasan_mekanik   penugasan_mekanik[]
+}
+
+model owner {
+  id_owner    String    @id @db.VarChar(4)
+  id_pengguna String    @unique @db.VarChar(4)
+  laporan     laporan[]
+  pengguna    pengguna  @relation(fields: [id_pengguna], references: [id_pengguna], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model pembayaran {
+  id_pembayaran         String        @id @db.VarChar(4)
+  tanggal_pembayaran    DateTime      @default(now()) @db.Timestamp(6)
+  metode_pembayaran     String        @db.VarChar(30)
+  jumlah_bayar          Decimal       @db.Decimal(12, 2)
+  status_pembayaran     String        @default("Menunggu") @db.VarChar(20)
+  konfirmasi_pembayaran String        @default("Belum Dikonfirmasi") @db.VarChar(20)
+  id_rincian            String        @db.VarChar(4)
+  id_kasir              String        @db.VarChar(4)
+  kasir                 kasir         @relation(fields: [id_kasir], references: [id_kasir], onDelete: NoAction, onUpdate: NoAction)
+  rincian_biaya         rincian_biaya @relation(fields: [id_rincian], references: [id_rincian], onDelete: NoAction, onUpdate: NoAction)
+  transaksi             transaksi?
+
+  @@index([id_kasir], map: "idx_pembayaran_kasir")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model pemesanan_sparepart {
+  id_pemesanan         String                 @id @db.VarChar(6)
+  id_sparepart         String                 @db.VarChar(6)
+  id_supplier          String                 @db.VarChar(4)
+  jumlah               Int
+  tanggal_pemesanan    DateTime               @default(dbgenerated("CURRENT_DATE")) @db.Date
+  estimasi_tiba        DateTime?              @db.Date
+  status_pemesanan     String                 @default("Draf") @db.VarChar(20)
+  catatan              String?                @db.VarChar(255)
+  dibuat_pada          DateTime               @default(now()) @db.Timestamp(6)
+  id_sa                String                 @db.VarChar(4)
+  service_advisor      service_advisor        @relation(fields: [id_sa], references: [id_sa], onDelete: NoAction, onUpdate: NoAction)
+  sparepart            sparepart              @relation(fields: [id_sparepart], references: [id_sparepart], onDelete: NoAction, onUpdate: NoAction)
+  supplier             supplier               @relation(fields: [id_supplier], references: [id_supplier], onDelete: NoAction, onUpdate: NoAction)
+  penggunaan_sparepart penggunaan_sparepart[]
+
+  @@index([status_pemesanan], map: "idx_pemesanan_status")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model pengguna {
+  id_pengguna        String           @id @db.VarChar(4)
+  nama               String           @db.VarChar(100)
+  username           String           @unique @db.VarChar(50)
+  password           String           @db.VarChar(255)
+  no_hp              String           @db.VarChar(15)
+  role               String           @db.VarChar(20)
+  login              String           @default("Aktif") @db.VarChar(20)
+  tanggal_registrasi DateTime         @default(dbgenerated("CURRENT_DATE")) @db.Date
+  customer           customer?
+  kasir              kasir?
+  mekanik            mekanik?
+  owner              owner?
+  service_advisor    service_advisor?
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model penggunaan_sparepart {
+  id_servis                     String               @db.VarChar(4)
+  id_sparepart                  String               @db.VarChar(6)
+  bagian_diganti                String?              @db.VarChar(100)
+  jumlah_sparepart              Int
+  status_ketersediaan_sparepart String               @default("Tersedia") @db.VarChar(20)
+  status_pemesanan              String               @default("Tidak dipesan") @db.VarChar(20)
+  id_pemesanan                  String?              @db.VarChar(6)
+  pemesanan_sparepart           pemesanan_sparepart? @relation(fields: [id_pemesanan], references: [id_pemesanan], onDelete: NoAction, onUpdate: NoAction)
+  servis                        servis               @relation(fields: [id_servis], references: [id_servis], onDelete: Cascade, onUpdate: NoAction)
+  sparepart                     sparepart            @relation(fields: [id_sparepart], references: [id_sparepart], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id_servis, id_sparepart])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model penugasan_mekanik {
+  id_data_mekanik   String   @id @db.VarChar(4)
+  tanggal_penugasan DateTime @default(now()) @db.Timestamp(6)
+  status_penugasan  String   @default("Ditugaskan") @db.VarChar(20)
+  id_servis         String   @db.VarChar(4)
+  id_mekanik        String   @db.VarChar(4)
+  mekanik           mekanik  @relation(fields: [id_mekanik], references: [id_mekanik], onDelete: NoAction, onUpdate: NoAction)
+  servis            servis   @relation(fields: [id_servis], references: [id_servis], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id_mekanik, status_penugasan], map: "idx_penugasan_mekanik")
+  @@index([id_servis], map: "idx_penugasan_servis")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model persetujuan_biaya {
+  id_persetujuan      String        @id @db.VarChar(4)
+  tanggal_persetujuan DateTime?     @db.Timestamp(6)
+  status_persetujuan  String        @default("Menunggu") @db.VarChar(20)
+  id_rincian          String        @unique @db.VarChar(4)
+  rincian_biaya       rincian_biaya @relation(fields: [id_rincian], references: [id_rincian], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model rincian_biaya {
+  id_rincian        String             @id @db.VarChar(4)
+  tanggal_rincian   DateTime           @default(dbgenerated("CURRENT_DATE")) @db.Date
+  biaya_jasa        Decimal            @db.Decimal(12, 2)
+  biaya_sparepart   Decimal            @db.Decimal(12, 2)
+  total_biaya       Decimal            @db.Decimal(12, 2)
+  id_servis         String             @unique @db.VarChar(4)
+  pembayaran        pembayaran[]
+  persetujuan_biaya persetujuan_biaya?
+  servis            servis             @relation(fields: [id_servis], references: [id_servis], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model riwayat_status_servis {
+  id_riwayat Int      @id @default(autoincrement())
+  id_servis  String   @db.VarChar(4)
+  tahap      String   @db.VarChar(50)
+  keterangan String?  @db.VarChar(255)
+  waktu      DateTime @default(now()) @db.Timestamp(6)
+  servis     servis   @relation(fields: [id_servis], references: [id_servis], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([id_servis, waktu], map: "idx_riwayat_status_servis")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model riwayat_stok {
+  id_riwayat      Int              @id @default(autoincrement())
+  id_sparepart    String           @db.VarChar(6)
+  jenis           String           @db.VarChar(25)
+  jumlah_sebelum  Int
+  jumlah_sesudah  Int
+  catatan         String?          @db.VarChar(255)
+  waktu           DateTime         @default(now()) @db.Timestamp(6)
+  id_sa           String?          @db.VarChar(4)
+  service_advisor service_advisor? @relation(fields: [id_sa], references: [id_sa], onDelete: NoAction, onUpdate: NoAction)
+  sparepart       sparepart        @relation(fields: [id_sparepart], references: [id_sparepart], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([id_sparepart, waktu], map: "idx_riwayat_stok")
+}
+
+model service_advisor {
+  id_sa               String                @id @db.VarChar(4)
+  id_pengguna         String                @unique @db.VarChar(4)
+  pemesanan_sparepart pemesanan_sparepart[]
+  riwayat_stok        riwayat_stok[]
+  pengguna            pengguna              @relation(fields: [id_pengguna], references: [id_pengguna], onDelete: Cascade, onUpdate: NoAction)
+  servis              servis[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model servis {
+  id_servis             String                  @id @db.VarChar(4)
+  nomor_antrian         String                  @unique @db.VarChar(10)
+  tanggal_daftar        DateTime                @default(dbgenerated("CURRENT_DATE")) @db.Date
+  keluhan               String                  @db.VarChar(300)
+  catatan_kedatangan    String?                 @db.VarChar(255)
+  status_verifikasi     String                  @default("Menunggu") @db.VarChar(20)
+  estimasi_waktu_tunggu String?                 @db.VarChar(30)
+  tanggal_pemeriksaan   DateTime?               @db.Timestamp(6)
+  hasil_pemeriksaan     String?                 @db.VarChar(300)
+  kebutuhan_servis      String?                 @db.VarChar(300)
+  tanggal_mulai         DateTime?               @db.Timestamp(6)
+  tanggal_selesai       DateTime?               @db.Timestamp(6)
+  status_servis         String                  @default("Menunggu Verifikasi") @db.VarChar(25)
+  hasil_servis          String?                 @db.VarChar(300)
+  alasan_batal          String?                 @db.VarChar(300)
+  id_kendaraan          String                  @db.VarChar(4)
+  id_sa                 String?                 @db.VarChar(4)
+  penggunaan_sparepart  penggunaan_sparepart[]
+  penugasan_mekanik     penugasan_mekanik[]
+  rincian_biaya         rincian_biaya?
+  riwayat_status_servis riwayat_status_servis[]
+  kendaraan             kendaraan               @relation(fields: [id_kendaraan], references: [id_kendaraan], onDelete: NoAction, onUpdate: NoAction)
+  service_advisor       service_advisor?        @relation(fields: [id_sa], references: [id_sa], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id_kendaraan], map: "idx_servis_kendaraan")
+  @@index([status_servis], map: "idx_servis_status")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model sparepart {
+  id_sparepart         String                 @id @db.VarChar(6)
+  nama_sparepart       String                 @unique @db.VarChar(100)
+  kategori             String                 @db.VarChar(30)
+  satuan               String                 @db.VarChar(15)
+  stok                 Int                    @default(0)
+  batas_minimum        Int                    @default(0)
+  lokasi_penyimpanan   String?                @db.VarChar(50)
+  status_aktif         String                 @default("Aktif") @db.VarChar(10)
+  tanggal_diperbarui   DateTime               @default(now()) @db.Timestamp(6)
+  id_supplier          String?                @db.VarChar(4)
+  pemesanan_sparepart  pemesanan_sparepart[]
+  penggunaan_sparepart penggunaan_sparepart[]
+  riwayat_stok         riwayat_stok[]
+  supplier             supplier?              @relation(fields: [id_supplier], references: [id_supplier], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model supplier {
+  id_supplier         String                @id @db.VarChar(4)
+  nama_supplier       String                @unique @db.VarChar(50)
+  kontak_supplier     String?               @db.VarChar(15)
+  pemesanan_sparepart pemesanan_sparepart[]
+  sparepart           sparepart[]
 }

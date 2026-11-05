@@ -34,3 +34,18 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Authentication
+
+Set `DATABASE_URL` to a direct PostgreSQL connection string and `AUTH_SECRET` to
+a random secret of at least 32 bytes in `.env`. Generate a secret with:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"
+```
+
+The Prisma Client is generated from the existing schema during dependency
+installation. Login is available at `/login/customer`, `/login/service-advisor`,
+`/login/mekanik`, `/login/owner`, and `/login/kasir`. Customer registration is
+available at `/register`; the supplied email is used as the username, and the
+first vehicle is saved with the customer account.
