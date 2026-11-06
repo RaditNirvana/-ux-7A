@@ -1,3 +1,47 @@
+<# AGENTS.md: Mitra Jaya Servis
+
+## Gambaran proyek
+Aplikasi web bengkel "Mitra Jaya Servis" (praktikum APSI Modul 4). Lima role: Customer, Service Advisor (SA), Mekanik, Kasir, Owner. UI dibuat dari desain Figma, backend dan database dibangun dengan bantuan agen AI (vibe coding) dan diperiksa manual.
+
+## Teknologi
+- Next.js 16 (App Router), TypeScript, CSS/Tailwind
+- Prisma 7 (driver adapter @prisma/adapter-pg), PostgreSQL (Docker `db-ux` untuk lokal; Neon untuk deploy)
+- Autentikasi: bcryptjs (hash password), jose (JWT di cookie httpOnly), middleware (Proxy) per role
+- Deploy rencana: Vercel + Neon
+
+## Cara menjalankan (lokal)
+1. `docker start db-ux`
+2. `npm install`
+3. `npm run dev` (http://localhost:3000)
+4. `.env` berisi DATABASE_URL dan secret login (jangan di-commit)
+
+## Sumber desain
+Figma: https://www.figma.com/design/og4XMzH0P50x4JDP0X7C7T/7A_USER-INTERFACE (satu page, semua aktor; frame 1440x900). Layar harus sama persis dengan frame Figma: layout, warna, font, ikon, teks, serta hover, modal, dan sidebar overlay. Satu layar bisa punya banyak frame yang merupakan STATE (modal, konfirmasi, sukses); implementasikan sebagai satu route dengan state, bukan satu halaman per frame.
+
+## Aturan wajib
+- Jangan mengubah `prisma/schema.prisma`, `database.sql`, atau `.env`. Jika desain butuh sesuatu yang tidak ada di database, berhenti dan laporkan.
+- Cek session dan role di server untuk setiap halaman, API, dan server action. Customer hanya boleh melihat dan mengubah datanya sendiri.
+- Penulisan ke beberapa tabel memakai `prisma.$transaction`. ID berbentuk VARCHAR (V001, M001, dst.); buat ID berikutnya di dalam transaksi.
+- Jangan menulis password atau rahasia ke file, log, laporan, atau commit.
+- Data di UI harus nyata dari Prisma, bukan data contoh dari Figma.
+- Sebelum selesai: jalankan `npm run lint` dan `npm run build`, bandingkan layar dengan Figma pada 1440x900, lalu laporkan apa yang belum cocok.
+- Jangan menambah library tanpa izin.
+
+## Status pekerjaan
+- Selesai: landing, pilih role, login/logout/register, middleware per role, dashboard Customer, Data Kendaraan (CRUD).
+- Customer: Pendaftaran Servis, Status Servis, Persetujuan Biaya, Pembayaran masih placeholder.
+- SA: 8 route ada dengan data database (dashboard, verifikasi, penugasan, hasil pemeriksaan, data mekanik, stok sparepart, pemesanan sparepart, status servis); perapian kemiripan Figma sebagian.
+- Mekanik, Kasir, Owner: baru dashboard.
+- Perbarui bagian ini setiap selesai satu tahap.
+
+## Celah database yang diketahui
+- Metode pembayaran "VA" di desain tidak ada di CHECK (Tunai, Transfer, QRIS); dipetakan ke Transfer.
+- Belum ada status "pengajuan pembatalan".
+- Format ID di Figma (SRV-001, M-001) berbeda dari ID database; format hanya untuk tampilan.
+
+## Akun uji (lokal)
+Akun uji untuk tiap role ada di data awal `database.sql`. Hanya untuk pengembangan lokal; ganti password sebelum deploy publik.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
