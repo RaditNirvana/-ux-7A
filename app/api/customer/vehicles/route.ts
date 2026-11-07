@@ -1,18 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCustomerApiContext } from "@/lib/customer-session";
+import { getSessionUser } from "@/lib/session-user";
 import {
   getKnownRequestErrorCode,
   validateVehicleInput,
   VehicleIdPoolExhaustedError,
 } from "@/lib/vehicle-validation";
 
-export async function GET() {
-  const customer = await getCustomerApiContext();
-
-  if (!customer) {
-    return NextResponse.json({ message: "Sesi customer tidak valid." }, { status: 401 });
+async function getCustomerContextResponse() {
+  const user = await getSessionUser();
+  if (!user) {
+    return { customer: null, response: NextResponse.json({ message: "Sesi tidak valid." }, { status: 401 }) };
   }
+  if (user.role !== "Customer" || !user.id_customer) {
+    return { customer: null, response: NextResponse.json({ message: "Akses ditolak." }, { status: 403 }) };
+  }
+  return { customer: { id_customer: user.id_customer }, response: null };
+}
+
+export async function GET() {
+  const { customer, response } = await getCustomerContextResponse();
+  if (response || !customer) return response;
 
   try {
     const vehicles = await prisma.kendaraan.findMany({
@@ -40,11 +48,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const customer = await getCustomerApiContext();
-
-  if (!customer) {
-    return NextResponse.json({ message: "Sesi customer tidak valid." }, { status: 401 });
-  }
+  const { customer, response } = await getCustomerContextResponse();
+  if (response || !customer) return response;
 
   let body: unknown;
 

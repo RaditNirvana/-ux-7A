@@ -1,12 +1,19 @@
-import ServiceAdvisorPlaceholderPage from "@/components/sa/ServiceAdvisorPlaceholderPage";
+import OrdersPage from "@/components/sa/screens/OrdersPage";
+import {
+  getServiceAdvisorOrders,
+  getServiceAdvisorSpareparts,
+  getServiceAdvisorSuppliers,
+} from "@/lib/service-advisor-data";
 
 export const instant = false;
 
-export default function PemesananSparepartPage() {
+export default async function SparepartOrdersRoute() {
+  const [orders, spareparts, suppliers] = await Promise.all([
+    getServiceAdvisorOrders(),
+    getServiceAdvisorSpareparts(),
+    getServiceAdvisorSuppliers(),
+  ]);
   return (
-    <ServiceAdvisorPlaceholderPage
-      description="Daftar permintaan pembelian sparepart, supplier, dan status order akan dikelola dari halaman ini."
-      title="Pemesanan Sparepart"
-    />
+    <OrdersPage orders={orders} spareparts={spareparts} suppliers={suppliers} />
   );
 }

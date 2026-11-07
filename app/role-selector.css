@@ -1,10 +1,8 @@
 .role-selector {
   position: relative;
   width: 100%;
-  max-width: 1440px;
   min-height: 865px;
-  margin: 0 auto;
-  overflow: hidden;
+  overflow-x: hidden;
   background: #f0f1ff;
   color: #000;
 }

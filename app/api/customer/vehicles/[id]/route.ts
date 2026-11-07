@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCustomerApiContext } from "@/lib/customer-session";
+import { getSessionUser } from "@/lib/session-user";
 import { prisma } from "@/lib/prisma";
 import {
   getKnownRequestErrorCode,
@@ -10,16 +10,25 @@ type VehicleRouteContext = {
   params: Promise<{ id: string }>;
 };
 
+async function getCustomerContextResponse() {
+  const user = await getSessionUser();
+  if (!user) {
+    return { customer: null, response: NextResponse.json({ message: "Sesi tidak valid." }, { status: 401 }) };
+  }
+  if (user.role !== "Customer" || !user.id_customer) {
+    return { customer: null, response: NextResponse.json({ message: "Akses ditolak." }, { status: 403 }) };
+  }
+  return { customer: { id_customer: user.id_customer }, response: null };
+}
+
 function isVehicleId(value: string) {
   return /^V\d{3}$/.test(value);
 }
 
 export async function GET(_request: Request, { params }: VehicleRouteContext) {
-  const customer = await getCustomerApiContext();
-
-  if (!customer) {
-    return NextResponse.json({ message: "Sesi customer tidak valid." }, { status: 401 });
-  }
+  const { customer, response } = await getCustomerContextResponse();
+  if (response) return response;
+  if (!customer) return NextResponse.json({ message: "Akses ditolak." }, { status: 403 });
 
   const { id } = await params;
 
@@ -59,11 +68,9 @@ export async function PUT(
   request: Request,
   { params }: VehicleRouteContext,
 ) {
-  const customer = await getCustomerApiContext();
-
-  if (!customer) {
-    return NextResponse.json({ message: "Sesi customer tidak valid." }, { status: 401 });
-  }
+  const { customer, response } = await getCustomerContextResponse();
+  if (response) return response;
+  if (!customer) return NextResponse.json({ message: "Akses ditolak." }, { status: 403 });
 
   const { id } = await params;
 
@@ -98,9 +105,15 @@ export async function PUT(
       return NextResponse.json({ message: "Kendaraan tidak ditemukan." }, { status: 404 });
     }
 
-    const vehicle = await prisma.kendaraan.update({
-      where: { id_kendaraan: id },
+    const updated = await prisma.kendaraan.updateMany({
+      where: { id_kendaraan: id, id_customer: customer.id_customer },
       data: validation.data,
+    });
+    if (!updated.count) {
+      return NextResponse.json({ message: "Kendaraan tidak ditemukan." }, { status: 404 });
+    }
+    const vehicle = await prisma.kendaraan.findFirst({
+      where: { id_kendaraan: id, id_customer: customer.id_customer },
       select: {
         id_kendaraan: true,
         merek: true,
@@ -137,11 +150,9 @@ export async function DELETE(
   _request: Request,
   { params }: VehicleRouteContext,
 ) {
-  const customer = await getCustomerApiContext();
-
-  if (!customer) {
-    return NextResponse.json({ message: "Sesi customer tidak valid." }, { status: 401 });
-  }
+  const { customer, response } = await getCustomerContextResponse();
+  if (response) return response;
+  if (!customer) return NextResponse.json({ message: "Akses ditolak." }, { status: 403 });
 
   const { id } = await params;
 

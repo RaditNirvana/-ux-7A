@@ -54,42 +54,44 @@ const steps = [
 function Header() {
   return (
     <header className="site-header">
-      <a className="landing-brand" href="#home" aria-label="Mitra Jaya Servis, beranda">
-        <Image
-          src="/figma-assets/landing-logo-blue.png"
-          alt=""
-          width={67}
-          height={67}
-          priority
-        />
-        <span>Mitra Jaya Servis</span>
-      </a>
-      <nav className="main-nav" aria-label="Navigasi utama">
-        <a
-          className="nav-link nav-link--home cursor-pointer drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-semibold hover:text-white"
-          href="#home"
-        >
-          Beranda
+      <div className="site-header__inner">
+        <a className="landing-brand" href="#home" aria-label="Mitra Jaya Servis, beranda">
+          <Image
+            src="/figma-assets/landing-logo-blue.png"
+            alt=""
+            width={67}
+            height={67}
+            priority
+          />
+          <span>Mitra Jaya Servis</span>
         </a>
-        <a
-          className="nav-link cursor-pointer transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-semibold hover:text-white"
-          href="#layanan"
-        >
-          Layanan
-        </a>
-        <a
-          className="nav-link cursor-pointer transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-semibold hover:text-white"
-          href="#cara-kerja"
-        >
-          Cara Kerja
-        </a>
-        <a
-          className="nav-link cursor-pointer transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-semibold hover:text-white"
-          href="#kontak"
-        >
-          Kontak
-        </a>
-      </nav>
+        <nav className="main-nav" aria-label="Navigasi utama">
+          <a
+            className="nav-link nav-link--home cursor-pointer drop-shadow-[0_1px_1px_rgba(0,0,0,0.05)] transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-semibold hover:text-white"
+            href="#home"
+          >
+            Beranda
+          </a>
+          <a
+            className="nav-link cursor-pointer transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-semibold hover:text-white"
+            href="#layanan"
+          >
+            Layanan
+          </a>
+          <a
+            className="nav-link cursor-pointer transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-semibold hover:text-white"
+            href="#cara-kerja"
+          >
+            Cara Kerja
+          </a>
+          <a
+            className="nav-link cursor-pointer transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-semibold hover:text-white"
+            href="#kontak"
+          >
+            Kontak
+          </a>
+        </nav>
+      </div>
     </header>
   );
 }
@@ -98,28 +100,30 @@ function Hero() {
   return (
     <section className="hero" id="home">
       <Header />
-      <div className="hero-copy">
-        <h1>Servis Kendaraan Lebih Mudah dan Transparan</h1>
-        <p>
-          Daftar servis secara online, pantau antrian dan status pengerjaan,
-          serta lihat rincian biaya sebelum servis dikerjakan.
-        </p>
+      <div className="hero__inner">
+        <div className="hero-copy">
+          <h1>Servis Kendaraan Lebih Mudah dan Transparan</h1>
+          <p>
+            Daftar servis secara online, pantau antrian dan status pengerjaan,
+            serta lihat rincian biaya sebelum servis dikerjakan.
+          </p>
+        </div>
+        <div className="hero-art" aria-hidden="true">
+          <Image
+            src="/figma-assets/landing-tools-3d.png"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 720px) 90vw, 40vw"
+          />
+        </div>
+        <Link
+          className="login-button cursor-pointer transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-bold hover:text-white"
+          href="/masuk"
+        >
+          Masuk
+        </Link>
       </div>
-      <div className="hero-art" aria-hidden="true">
-        <Image
-          src="/figma-assets/landing-tools-3d.png"
-          alt=""
-          fill
-          priority
-          sizes="(max-width: 720px) 90vw, 40vw"
-        />
-      </div>
-      <Link
-        className="login-button cursor-pointer transition-all duration-300 ease-out hover:bg-[#0515FA] hover:font-bold hover:text-white"
-        href="/masuk"
-      >
-        Masuk
-      </Link>
     </section>
   );
 }
@@ -184,35 +188,37 @@ function Services() {
 function Workflow() {
   return (
     <section className="workflow" id="cara-kerja">
-      <header className="section-heading section-heading--light">
-        <h2>Bagaimana Cara Kerja Layanan Kami?</h2>
-        <p>
-          Empat langkah sederhana untuk membuat servis kendaraan Anda lebih
-          teratur dan mudah dipantau.
-        </p>
-      </header>
-      <div className="workflow-list">
-        {steps.map((step, index) => (
-        <div className="workflow-item" key={step.name}>
-          <article className="workflow-card group transition-all duration-300 ease-out hover:bg-gradient-to-b hover:from-[#333333] hover:to-black hover:shadow-xl">
-            <h3 className="transition-all duration-300 ease-out group-hover:-translate-y-4 group-hover:text-white">
-              {step.name}
-            </h3>
-            <p className="workflow-card__description transition-all duration-300 ease-out group-hover:opacity-100">
-              {step.description}
-            </p>
-          </article>
-          {index < steps.length - 1 && (
-              <Image
-                className="workflow-arrow"
-                src="/figma-assets/landing-arrow-right.svg"
-                alt=""
-                width={53}
-                height={42}
-              />
-            )}
-          </div>
-        ))}
+      <div className="workflow__inner">
+        <header className="section-heading section-heading--light">
+          <h2>Bagaimana Cara Kerja Layanan Kami?</h2>
+          <p>
+            Empat langkah sederhana untuk membuat servis kendaraan Anda lebih
+            teratur dan mudah dipantau.
+          </p>
+        </header>
+        <div className="workflow-list">
+          {steps.map((step, index) => (
+          <div className="workflow-item" key={step.name}>
+            <article className="workflow-card group transition-all duration-300 ease-out hover:bg-gradient-to-b hover:from-[#333333] hover:to-black hover:shadow-xl">
+              <h3 className="transition-all duration-300 ease-out group-hover:-translate-y-4 group-hover:text-white">
+                {step.name}
+              </h3>
+              <p className="workflow-card__description transition-all duration-300 ease-out group-hover:opacity-100">
+                {step.description}
+              </p>
+            </article>
+            {index < steps.length - 1 && (
+                <Image
+                  className="workflow-arrow"
+                  src="/figma-assets/landing-arrow-right.svg"
+                  alt=""
+                  width={53}
+                  height={42}
+                />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

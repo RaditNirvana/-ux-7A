@@ -1,12 +1,7 @@
-import ServiceAdvisorPlaceholderPage from "@/components/sa/ServiceAdvisorPlaceholderPage";
+import { redirect } from "next/navigation";
 
 export const instant = false;
 
 export default function PemeriksaanServisPage() {
-  return (
-    <ServiceAdvisorPlaceholderPage
-      description="Catatan hasil pemeriksaan, estimasi pekerjaan, dan persetujuan biaya akan diproses di halaman ini."
-      title="Pemeriksaan Servis"
-    />
-  );
+  redirect("/sa/hasil-pemeriksaan");
 }

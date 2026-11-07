@@ -13,18 +13,28 @@ const protectedPaths: Array<{ prefix: string; role: UserRole }> = [
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const mechanicApi =
+    pathname === "/api/mekanik" || pathname.startsWith("/api/mekanik/");
   const requiredRole = protectedPaths.find(
     ({ prefix }) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   )?.role;
   const legacyDashboard =
     pathname === "/dashboard" || pathname.startsWith("/dashboard/");
 
-  if (!requiredRole && !legacyDashboard) {
+  if (!requiredRole && !legacyDashboard && !mechanicApi) {
     return NextResponse.next();
   }
 
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const session = token ? await verifySessionToken(token) : null;
+
+  if (mechanicApi && (!session || session.role !== "Mekanik")) {
+    return NextResponse.json({ error: "Akses ditolak." }, { status: 403 });
+  }
+
+  if (mechanicApi) {
+    return NextResponse.next();
+  }
 
   if (!session) {
     return NextResponse.redirect(new URL("/masuk", request.url));
@@ -44,6 +54,7 @@ export const config = {
     "/customer/:path*",
     "/sa/:path*",
     "/mekanik/:path*",
+    "/api/mekanik/:path*",
     "/kasir/:path*",
     "/owner/:path*",
     "/dashboard/:path*",

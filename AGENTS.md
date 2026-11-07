@@ -31,7 +31,8 @@ Figma: https://www.figma.com/design/og4XMzH0P50x4JDP0X7C7T/7A_USER-INTERFACE (sa
 - Selesai: landing, pilih role, login/logout/register, middleware per role, dashboard Customer, Data Kendaraan (CRUD).
 - Customer: Pendaftaran Servis, Status Servis, Persetujuan Biaya, Pembayaran masih placeholder.
 - SA: 8 route ada dengan data database (dashboard, verifikasi, penugasan, hasil pemeriksaan, data mekanik, stok sparepart, pemesanan sparepart, status servis); perapian kemiripan Figma sebagian.
-- Mekanik, Kasir, Owner: baru dashboard.
+- Mekanik: Tahap 5A–5D selesai (dashboard, Penugasan read-only, Pemeriksaan, Konfirmasi Servis, Pelaksanaan Servis).
+- Kasir dan Owner: baru dashboard.
 - Perbarui bagian ini setiap selesai satu tahap.
 
 ## Celah database yang diketahui
