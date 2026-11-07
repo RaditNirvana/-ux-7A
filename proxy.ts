@@ -16,13 +16,14 @@ export async function proxy(request: NextRequest) {
   const mechanicApi =
     pathname === "/api/mekanik" || pathname.startsWith("/api/mekanik/");
   const kasirApi = pathname === "/api/kasir" || pathname.startsWith("/api/kasir/");
+  const ownerApi = pathname === "/api/owner" || pathname.startsWith("/api/owner/");
   const requiredRole = protectedPaths.find(
     ({ prefix }) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   )?.role;
   const legacyDashboard =
     pathname === "/dashboard" || pathname.startsWith("/dashboard/");
 
-  if (!requiredRole && !legacyDashboard && !mechanicApi && !kasirApi) {
+  if (!requiredRole && !legacyDashboard && !mechanicApi && !kasirApi && !ownerApi) {
     return NextResponse.next();
   }
 
@@ -39,6 +40,13 @@ export async function proxy(request: NextRequest) {
 
   if (kasirApi) {
     if (!session || session.role !== "Kasir") {
+      return NextResponse.json({ error: "Akses ditolak." }, { status: 403 });
+    }
+    return NextResponse.next();
+  }
+
+  if (ownerApi) {
+    if (!session || session.role !== "Owner") {
       return NextResponse.json({ error: "Akses ditolak." }, { status: 403 });
     }
     return NextResponse.next();
@@ -64,6 +72,7 @@ export const config = {
     "/mekanik/:path*",
     "/api/mekanik/:path*",
     "/api/kasir/:path*",
+    "/api/owner/:path*",
     "/kasir/:path*",
     "/owner/:path*",
     "/dashboard/:path*",

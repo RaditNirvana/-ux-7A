@@ -1,7 +1,7 @@
-import RolePlaceholderDashboard from "@/components/auth/RolePlaceholderDashboard";
+import OwnerDashboard from "@/components/owner/OwnerDashboard";
 
 export const instant = false;
 
 export default function OwnerDashboardPage() {
-  return <RolePlaceholderDashboard role="Owner" />;
+  return <OwnerDashboard />;
 }

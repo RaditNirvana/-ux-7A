@@ -74,7 +74,8 @@ Alur: Customer daftar -> SA verifikasi dan tugaskan -> Mekanik periksa -> SA kon
 
 ## Status pekerjaan (perbarui setiap selesai satu tahap, setelah diverifikasi)
 - Selesai: landing, pilih role, login/logout/register, proxy per role, Customer, SA, Mekanik (5A–5D), koreksi hak akses P4.
-- Berikutnya: Kasir (Tahap 6: Dashboard, Rincian Biaya Servis, Pembayaran, Bukti Transaksi, Kelola Akun), lalu Owner (Tahap 7: Dashboard, Buat Laporan, Kelola Akun).
+- Owner (Tahap 7A–7C) selesai; lint/build, API, CRUD akun semua role (akun uji dibersihkan), laporan Oktober (L002; transaksi L001 tidak tertimpa), unduhan PDF, periode invalid, dan akses role telah diverifikasi. Perbandingan visual 1440×900 masih perlu dilakukan.
+- Berikutnya: Kasir (Tahap 6: Dashboard, Rincian Biaya Servis, Pembayaran, Bukti Transaksi, Kelola Akun).
 - Perbaikan tertunda: halaman Customer (strip kiri dihapus; chip status "Servis aktif" harus sama dengan aktivitas terbaru; teks aktivitas tanpa kurung siku; aturan "Tagihan menunggu"), halaman SA yang memanjang ke bawah (harus pas 1440x900), tautan Dashboard Mekanik, rute SA ganda (penugasan / penugasan-mekanik, status-servis / proses-servis, stok-sparepart / sparepart, verifikasi / pendaftaran-servis: hapus yang tidak dipakai sidebar), peringatan rasio gambar SVG di terminal.
 
 ## Celah database yang diketahui
