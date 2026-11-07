@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -10,6 +11,7 @@ import {
   type RefObject,
 } from "react";
 import type { CustomerVehicle } from "@/components/customer/types";
+import { TransientNotice } from "@/components/notifications/TransientNotice";
 
 type VehicleManagerProps = {
   initialVehicles: CustomerVehicle[];
@@ -74,10 +76,33 @@ export default function VehicleManager({
   const [selectedVehicle, setSelectedVehicle] =
     useState<CustomerVehicle | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [successClosing, setSuccessClosing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dialogActionRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
+  const successCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const closeSuccess = useCallback(() => {
+    if (successCloseTimer.current || !successMessage) return;
+    setSuccessClosing(true);
+    successCloseTimer.current = setTimeout(() => {
+      successCloseTimer.current = null;
+      setSuccessMessage("");
+      setSuccessClosing(false);
+    }, 200);
+  }, [successMessage]);
+
+  function showSuccess(message: string) {
+    if (successCloseTimer.current) clearTimeout(successCloseTimer.current);
+    successCloseTimer.current = null;
+    setSuccessClosing(false);
+    setSuccessMessage(message);
+  }
+
+  useEffect(() => () => {
+    if (successCloseTimer.current) clearTimeout(successCloseTimer.current);
+  }, []);
 
   useEffect(() => {
     if (!successMessage) {
@@ -90,7 +115,7 @@ export default function VehicleManager({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        setSuccessMessage("");
+        closeSuccess();
         return;
       }
 
@@ -120,7 +145,7 @@ export default function VehicleManager({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [successMessage]);
+  }, [closeSuccess, successMessage]);
 
   function openVehicleScreen(
     nextScreen: VehicleScreen,
@@ -182,7 +207,7 @@ export default function VehicleManager({
 
       updateVehicleList(result.vehicle);
       setScreen("list");
-      setSuccessMessage(
+      showSuccess(
         isEditing
           ? "Data kendaraan berhasil diperbarui"
           : "Kendaraan berhasil ditambahkan",
@@ -225,7 +250,7 @@ export default function VehicleManager({
         ),
       );
       setScreen("list");
-      setSuccessMessage("Kendaraan berhasil dihapus");
+      showSuccess("Kendaraan berhasil dihapus");
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -243,6 +268,7 @@ export default function VehicleManager({
         errorMessage={errorMessage}
         isEditing={screen === "edit"}
         isSubmitting={isSubmitting}
+        onDismissError={() => setErrorMessage("")}
         onCancel={() => setScreen("list")}
         onSubmit={saveVehicle}
         vehicle={screen === "edit" ? selectedVehicle : null}
@@ -254,6 +280,7 @@ export default function VehicleManager({
     return selectedVehicle ? (
       <VehicleDetail
         errorMessage={errorMessage}
+        onDismissError={() => setErrorMessage("")}
         onBack={() => setScreen("list")}
         onDelete={() => openVehicleScreen("delete", selectedVehicle)}
         onEdit={() => openVehicleScreen("edit", selectedVehicle)}
@@ -262,6 +289,7 @@ export default function VehicleManager({
     ) : (
       <VehicleList
         errorMessage="Kendaraan tidak ditemukan."
+        onDismissError={() => setErrorMessage("")}
         onCreate={() => openVehicleScreen("create")}
         onSelect={openVehicleScreen}
         vehicles={vehicles}
@@ -274,6 +302,7 @@ export default function VehicleManager({
       <DeleteConfirmation
         errorMessage={errorMessage}
         isSubmitting={isSubmitting}
+        onDismissError={() => setErrorMessage("")}
         onCancel={() => setScreen("list")}
         onConfirm={deleteVehicle}
         vehicle={selectedVehicle}
@@ -285,6 +314,7 @@ export default function VehicleManager({
     <>
       <VehicleList
         errorMessage={errorMessage}
+        onDismissError={() => setErrorMessage("")}
         onCreate={() => openVehicleScreen("create")}
         onSelect={openVehicleScreen}
         vehicles={vehicles}
@@ -292,9 +322,10 @@ export default function VehicleManager({
       {successMessage && (
         <SuccessDialog
           actionRef={dialogActionRef}
+          closing={successClosing}
           dialogRef={dialogRef}
           message={successMessage}
-          onClose={() => setSuccessMessage("")}
+          onClose={closeSuccess}
         />
       )}
     </>
@@ -304,11 +335,13 @@ export default function VehicleManager({
 function VehicleList({
   vehicles,
   errorMessage,
+  onDismissError,
   onCreate,
   onSelect,
 }: {
   vehicles: CustomerVehicle[];
   errorMessage: string;
+  onDismissError: () => void;
   onCreate: () => void;
   onSelect: (
     screen: VehicleScreen,
@@ -344,9 +377,9 @@ function VehicleList({
         </div>
 
         {errorMessage && (
-          <p className="customer-form-error" role="alert">
+          <TransientNotice className="customer-form-error" onDismiss={onDismissError} role="alert">
             {errorMessage}
-          </p>
+          </TransientNotice>
         )}
 
         {vehicles.length > 0 ? (
@@ -433,6 +466,7 @@ function VehicleForm({
   isEditing,
   isSubmitting,
   errorMessage,
+  onDismissError,
   onCancel,
   onSubmit,
 }: {
@@ -440,6 +474,7 @@ function VehicleForm({
   isEditing: boolean;
   isSubmitting: boolean;
   errorMessage: string;
+  onDismissError: () => void;
   onCancel: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
@@ -522,9 +557,9 @@ function VehicleForm({
           </p>
         )}
         {errorMessage && (
-          <p className="customer-form-error" role="alert">
+          <TransientNotice className="customer-form-error" onDismiss={onDismissError} role="alert">
             {errorMessage}
-          </p>
+          </TransientNotice>
         )}
         <div className="customer-form-actions">
           <button
@@ -554,12 +589,14 @@ function VehicleForm({
 function VehicleDetail({
   vehicle,
   errorMessage,
+  onDismissError,
   onBack,
   onEdit,
   onDelete,
 }: {
   vehicle: CustomerVehicle;
   errorMessage: string;
+  onDismissError: () => void;
   onBack: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -601,9 +638,9 @@ function VehicleDetail({
           Terdaftar di akun customer
         </p>
         {errorMessage && (
-          <p className="customer-form-error" role="alert">
+          <TransientNotice className="customer-form-error" onDismiss={onDismissError} role="alert">
             {errorMessage}
-          </p>
+          </TransientNotice>
         )}
         <div className="customer-detail-actions">
           <button
@@ -648,12 +685,14 @@ function DeleteConfirmation({
   isSubmitting,
   onCancel,
   onConfirm,
+  onDismissError,
 }: {
   vehicle: CustomerVehicle;
   errorMessage: string;
   isSubmitting: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  onDismissError: () => void;
 }) {
   return (
     <div className="customer-page-content">
@@ -669,9 +708,9 @@ function DeleteConfirmation({
         <h3>{vehicleLabel(vehicle)}</h3>
         <p>Kendaraan akan dihapus dari daftar akun Anda</p>
         {errorMessage && (
-          <p className="customer-form-error" role="alert">
+          <TransientNotice className="customer-form-error" onDismiss={onDismissError} role="alert">
             {errorMessage}
-          </p>
+          </TransientNotice>
         )}
         <div className="customer-delete-actions">
           <button
@@ -698,11 +737,13 @@ function DeleteConfirmation({
 function SuccessDialog({
   message,
   onClose,
+  closing,
   actionRef,
   dialogRef,
 }: {
   message: string;
   onClose: () => void;
+  closing: boolean;
   actionRef: RefObject<HTMLButtonElement | null>;
   dialogRef: RefObject<HTMLElement | null>;
 }) {
@@ -716,6 +757,7 @@ function SuccessDialog({
   return (
     <div
       className="customer-dialog-backdrop"
+      style={{ opacity: closing ? 0 : 1, pointerEvents: closing ? "none" : undefined, transition: "opacity 200ms ease-out" }}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -726,6 +768,7 @@ function SuccessDialog({
         aria-labelledby="customer-vehicle-success-title"
         aria-modal="true"
         className={`customer-success-dialog${message.includes("dihapus") ? " customer-success-dialog--delete" : message.includes("diperbarui") ? " customer-success-dialog--updated" : ""}`}
+        style={{ opacity: closing ? 0 : 1, transition: "opacity 200ms ease-out" }}
         role="dialog"
         ref={dialogRef}
       >

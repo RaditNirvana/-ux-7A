@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
+import { TransientNotice } from "@/components/notifications/TransientNotice";
 
 type LogoutActionProps = {
   name: string;
@@ -11,6 +12,7 @@ type LogoutActionProps = {
   icon?: string;
   label?: string;
   onLoggedOut?: () => void;
+  variant?: "default" | "service-advisor";
 };
 
 export default function LogoutAction({
@@ -19,6 +21,7 @@ export default function LogoutAction({
   icon,
   label = "Keluar",
   onLoggedOut,
+  variant = "default",
 }: LogoutActionProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,9 +75,9 @@ export default function LogoutAction({
         <span>{isSubmitting ? `${label}...` : label}</span>
       </button>
       {errorMessage && (
-        <span className="customer-logout-error" role="alert">
+        <TransientNotice as="span" className="customer-logout-error" onDismiss={() => setErrorMessage("")} role="alert">
           {errorMessage}
-        </span>
+        </TransientNotice>
       )}
       {loggedOut &&
         portalRoot &&
@@ -91,12 +94,16 @@ export default function LogoutAction({
             >
               <h1 id="customer-logout-title">Sampai jumpa, {name}!</h1>
               <p>
-                Sesi Anda sudah diakhiri. Semoga perjalanan menyenangkan.
+                {variant === "service-advisor"
+                  ? "Sesi Anda sudah diakhiri."
+                  : "Sesi Anda sudah diakhiri. Semoga perjalanan menyenangkan."}
               </p>
               <Link className="customer-logout-home" href="/">
                 Kembali ke halaman utama
               </Link>
-              <p className="customer-logout-help">Bantuan: 021 555 0148</p>
+              {variant === "default" ? (
+                <p className="customer-logout-help">Bantuan: 021 555 0148</p>
+              ) : null}
             </section>
           </main>,
           portalRoot,
