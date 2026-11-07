@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({
-      redirect: `/dashboard/${getRoleSlug(role)}`,
+      redirect: role === "Kasir" ? "/kasir/dashboard" : `/dashboard/${getRoleSlug(role)}`,
     });
   } catch (error) {
     console.error("Login request failed:", error);

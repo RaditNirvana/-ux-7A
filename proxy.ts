@@ -15,13 +15,14 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const mechanicApi =
     pathname === "/api/mekanik" || pathname.startsWith("/api/mekanik/");
+  const kasirApi = pathname === "/api/kasir" || pathname.startsWith("/api/kasir/");
   const requiredRole = protectedPaths.find(
     ({ prefix }) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   )?.role;
   const legacyDashboard =
     pathname === "/dashboard" || pathname.startsWith("/dashboard/");
 
-  if (!requiredRole && !legacyDashboard && !mechanicApi) {
+  if (!requiredRole && !legacyDashboard && !mechanicApi && !kasirApi) {
     return NextResponse.next();
   }
 
@@ -33,6 +34,13 @@ export async function proxy(request: NextRequest) {
   }
 
   if (mechanicApi) {
+    return NextResponse.next();
+  }
+
+  if (kasirApi) {
+    if (!session || session.role !== "Kasir") {
+      return NextResponse.json({ error: "Akses ditolak." }, { status: 403 });
+    }
     return NextResponse.next();
   }
 
@@ -55,6 +63,7 @@ export const config = {
     "/sa/:path*",
     "/mekanik/:path*",
     "/api/mekanik/:path*",
+    "/api/kasir/:path*",
     "/kasir/:path*",
     "/owner/:path*",
     "/dashboard/:path*",

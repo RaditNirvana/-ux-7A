@@ -1,7 +1,7 @@
-import RolePlaceholderDashboard from "@/components/auth/RolePlaceholderDashboard";
+import KasirDashboardScreen from "@/components/kasir/KasirDashboardScreen";
 
 export const instant = false;
 
-export default function CashierDashboardPage() {
-  return <RolePlaceholderDashboard role="Kasir" />;
+export default function KasirDashboardPage() {
+  return <KasirDashboardScreen />;
 }
