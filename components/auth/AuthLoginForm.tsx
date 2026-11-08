@@ -130,7 +130,7 @@ export default function AuthLoginForm({
                 autoComplete="current-password"
                 maxLength={72}
                 name="password"
-                placeholder="••••••••"
+                placeholder="Masukkan password"
                 required
                 type="password"
               />

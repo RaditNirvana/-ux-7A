@@ -118,7 +118,7 @@ export default function AuthRegisterForm() {
                   minLength={8}
                   maxLength={72}
                   name="password"
-                  placeholder="Minimal 8 karakter"
+                  placeholder="Masukkan password"
                   required
                   type="password"
                 />
