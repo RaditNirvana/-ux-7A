@@ -88,12 +88,9 @@ export default function VerificationPage({
   return (
     <section className="sa-verification mx-auto w-full max-w-[1160px]" data-state={pageState}>
       <ServiceAdvisorHero
+        artSrc="/figma-assets/sa-verification-hero.png"
         title="VERIFIKASI PENDAFTARAN SERVIS"
-        subtitle={
-          successMessage
-            ? `State setelah aksi • Pendaftaran ${successMessage.number} berhasil diverifikasi.`
-            : "Periksa nomor antrian dan data customer sebelum melanjutkan ke penugasan mekanik."
-        }
+        subtitle="Periksa nomor antrian dan data customer sebelum melanjutkan ke penugasan mekanik."
       />
 
       <div className="sa-verification-grid">
@@ -136,7 +133,6 @@ export default function VerificationPage({
                     <th scope="col">Customer</th>
                     <th scope="col">Plat nomor</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -145,8 +141,23 @@ export default function VerificationPage({
 
                     return (
                       <tr
+                        aria-selected={service.id === selectedId}
                         data-selected={service.id === selectedId}
+                        onClick={() => {
+                          setSelectedId(service.id);
+                          setSuccessMessage(null);
+                          setError("");
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            setSelectedId(service.id);
+                            setSuccessMessage(null);
+                            setError("");
+                          }
+                        }}
                         key={service.id}
+                        tabIndex={0}
                       >
                         <td>{service.number}</td>
                         <td>{service.customer}</td>
@@ -159,25 +170,12 @@ export default function VerificationPage({
                             {isVerified ? "Terverifikasi" : service.verification}
                           </span>
                         </td>
-                        <td>
-                          <button
-                            className="sa-verification-detail-link"
-                            onClick={() => {
-                              setSelectedId(service.id);
-                              setSuccessMessage(null);
-                              setError("");
-                            }}
-                            type="button"
-                          >
-                            Detail
-                          </button>
-                        </td>
                       </tr>
                     );
                   })}
                   {filteredServices.length === 0 ? (
                     <tr>
-                      <td colSpan={5}>
+                          <td colSpan={4}>
                         <div className="flex min-h-[100px] items-center justify-center text-center text-sm text-[#555569]">
                           {services.length === 0
                             ? "Tidak ada pendaftaran yang menunggu verifikasi."

@@ -27,7 +27,15 @@ export default async function MekanikPemeriksaanPage({
       availability={mechanic?.status_ketersediaan ?? "Tersedia"}
       data={data}
       name={identity.user.nama}
-      selectedId={Array.isArray(search.id) ? search.id[0] : search.id}
+    selectedId={
+      data.assignments.some(
+        (assignment) => assignment.id_servis === (Array.isArray(search.id) ? search.id[0] : search.id),
+      )
+        ? Array.isArray(search.id)
+          ? search.id[0]
+          : search.id
+        : undefined
+    }
     />
   );
 }

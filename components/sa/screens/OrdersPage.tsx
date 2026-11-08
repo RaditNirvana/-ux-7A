@@ -37,6 +37,7 @@ export default function OrdersPage({
   const router = useRouter();
   const [selectedId, setSelectedId] = useState(orders[0]?.id ?? "");
   const [dialog, setDialog] = useState<"add" | "edit" | "delete" | null>(null);
+  const [successKind, setSuccessKind] = useState<"add" | "edit" | "delete" | null>(null);
   const [search, setSearch] = useState("");
   const [selectedSparepartId, setSelectedSparepartId] = useState("");
   const [error, setError] = useState("");
@@ -82,10 +83,13 @@ export default function OrdersPage({
       }
 
       setDialog(null);
+      setSuccessKind(dialog);
+      const sparepart = spareparts.find((part) => part.id === formData.get("id_sparepart"));
+      const supplier = suppliers.find((item) => item.id === formData.get("id_supplier"));
       setNotice(
         dialog === "add"
-          ? "Pemesanan sparepart berhasil dibuat."
-          : "Pemesanan sparepart berhasil diperbarui.",
+          ? `${formData.get("jumlah")} ${sparepart?.unit ?? "unit"} ${sparepart?.name ?? "sparepart"} untuk ${supplier?.name ?? "supplier"} berhasil ditambahkan.`
+          : `Pemesanan ${selected?.id ?? ""} berhasil diperbarui.`,
       );
       router.refresh();
     } finally {
@@ -107,6 +111,7 @@ export default function OrdersPage({
       }
 
       setDialog(null);
+      setSuccessKind("delete");
       setNotice(`${selected.id} berhasil dihapus.`);
       router.refresh();
     } finally {
@@ -115,28 +120,24 @@ export default function OrdersPage({
   }
 
   return (
-    <section>
+    <section className="sa-orders">
       <ServiceAdvisorHero
         title="PEMESANAN SPAREPART"
         subtitle="Kelola pemesanan ke supplier dan pantau status pemenuhan kebutuhan sparepart."
       />
-      {notice ? (
-        <div className="mb-3">
-          <ServiceAdvisorNotice onDismiss={() => setNotice("")}>{notice}</ServiceAdvisorNotice>
-        </div>
-      ) : null}
       {error && !dialog ? (
-        <div className="mb-3">
+        <div className="sa-orders-notice">
           <ServiceAdvisorNotice onDismiss={() => setError("")} tone="error">{error}</ServiceAdvisorNotice>
         </div>
       ) : null}
-      <div className="grid gap-4 xl:grid-cols-[1.7fr_0.8fr]">
-        <div className="space-y-4">
+      <div className="sa-orders-grid">
+        <div className="sa-orders-left">
           <ServiceAdvisorPanel
+            className="sa-orders-list-panel"
             title="Daftar Pemesanan Sparepart"
             subtitle={`${formatServiceAdvisorDate(new Date())} • ${orders.length} pemesanan`}
           >
-            <div className="mb-3 flex flex-wrap gap-2">
+            <div className="sa-orders-toolbar">
               <input
                 aria-label="Cari pemesanan"
                 className={saInput}
@@ -152,7 +153,7 @@ export default function OrdersPage({
               </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[610px] border-collapse text-left text-[11px]">
+              <table className="sa-orders-table">
                 <thead>
                   <tr className="border-b border-[#8e8b9e]">
                     {["Nomor", "Nama sparepart", "Jumlah", "Supplier", "Status", "Aksi"].map(
@@ -167,7 +168,7 @@ export default function OrdersPage({
                 <tbody>
                   {filteredOrders.map((order) => (
                     <tr
-                      className={`border-b border-[#d1cde7] ${
+                      className={`sa-orders-row border-b border-[#d1cde7] ${
                         order.id === selectedId ? "bg-[#e3e1f8]" : ""
                       }`}
                       key={order.id}
@@ -224,27 +225,30 @@ export default function OrdersPage({
                 </ServiceAdvisorEmpty>
               ) : null}
             </div>
-            <p className="mt-2 text-[10px] text-[#77758a]">
+            <p className="sa-orders-count">
               Menampilkan {filteredOrders.length} dari {orders.length} data
             </p>
           </ServiceAdvisorPanel>
-          <ServiceAdvisorNotice tone="info">
-            Pemesanan belum menambah stok gudang. Stok diperbarui hanya setelah
-            status pesanan diubah menjadi Diterima.
+          <ServiceAdvisorNotice className="sa-orders-info" tone="info">
+            <span aria-hidden="true" className="sa-orders-info-icon" />
+            <span className="sa-orders-info-copy">
+              <strong>Pemesanan belum menambah stok</strong>
+              <span>Stok gudang diperbarui setelah barang diterima.</span>
+            </span>
           </ServiceAdvisorNotice>
         </div>
 
         <ServiceAdvisorPanel
-          className="h-fit"
+          className="sa-orders-detail-panel"
           title="Detail Pemesanan"
           subtitle={selected ? `${selected.id} • ${selected.sparepart}` : undefined}
         >
           {selected ? (
             <>
-              <div className="mb-4">
+              <div className="sa-orders-detail-status">
                 <ServiceAdvisorStatus value={selected.status} />
               </div>
-              <dl className="space-y-3 text-xs">
+              <dl className="sa-orders-detail-grid">
                 <div>
                   <dt className="text-[10px] text-[#68667a]">Kode & jumlah sparepart</dt>
                   <dd className="mt-1 font-bold">
@@ -289,7 +293,7 @@ export default function OrdersPage({
                 ) : null}
               </dl>
               {selected.status !== "Diterima" ? (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="sa-orders-detail-actions">
                   <button
                     className={saPrimaryButton}
                     onClick={() => {
@@ -322,6 +326,9 @@ export default function OrdersPage({
 
       {dialog === "add" || dialog === "edit" ? (
         <ServiceAdvisorModal
+          backdropClassName="sa-orders-form-backdrop"
+          className="sa-orders-form-modal"
+          headerAside={formatServiceAdvisorDate(new Date())}
           onClose={() => setDialog(null)}
           title={dialog === "add" ? "Tambah Pemesanan Sparepart" : "Edit Pemesanan"}
         >
@@ -447,6 +454,8 @@ export default function OrdersPage({
 
       {dialog === "delete" && selected ? (
         <ServiceAdvisorModal
+          backdropClassName="sa-orders-delete-backdrop"
+          className="sa-orders-delete-modal"
           onClose={() => setDialog(null)}
           title="Hapus pemesanan sparepart?"
         >
@@ -479,6 +488,47 @@ export default function OrdersPage({
               type="button"
             >
               {submitting ? "Menghapus..." : "Ya, hapus"}
+            </button>
+          </div>
+        </ServiceAdvisorModal>
+      ) : null}
+
+      {notice && successKind ? (
+        <ServiceAdvisorModal
+          backdropClassName="sa-orders-success-backdrop"
+          className="sa-orders-success-modal"
+          onClose={() => {
+            setNotice("");
+            setSuccessKind(null);
+          }}
+          title="Konfirmasi berhasil"
+        >
+          <div aria-hidden="true" className="sa-orders-success-icon">
+            <span />
+          </div>
+          <h2 className="sa-orders-success-title">
+            {successKind === "add"
+              ? "Berhasil Ditambahkan"
+              : successKind === "edit"
+                ? "Berhasil Diperbarui"
+                : "Berhasil Dihapus"}
+          </h2>
+          <p className="sa-orders-success-copy">{notice}</p>
+          <p className="sa-orders-success-note">
+            {successKind === "delete"
+              ? "Stok tidak berubah karena pesanan bukan transaksi penerimaan barang."
+              : "Stok tetap; belum ada penerimaan barang."}
+          </p>
+          <div className="sa-orders-success-actions">
+            <button
+              className={saPrimaryButton}
+              onClick={() => {
+                setNotice("");
+                setSuccessKind(null);
+              }}
+              type="button"
+            >
+              Kembali
             </button>
           </div>
         </ServiceAdvisorModal>

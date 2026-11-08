@@ -103,12 +103,9 @@ export default function AssignmentPage({
       data-state={pageState}
     >
       <ServiceAdvisorHero
+        artSrc="/figma-assets/sa-assignment-hero.png"
         title="PENUGASAN MEKANIK"
-        subtitle={
-          notice
-            ? `State setelah aksi • ${notice.mechanicName} berhasil ditugaskan untuk servis ${notice.number}.`
-            : "Kelola servis terverifikasi dan tentukan mekanik sesuai keahlian serta ketersediaannya."
-        }
+        subtitle="Kelola servis terverifikasi dan tentukan mekanik sesuai keahlian serta ketersediaannya."
       />
       <ServiceAdvisorTabs
         active="/sa/penugasan"
@@ -328,6 +325,7 @@ export default function AssignmentPage({
       {dialogOpen ? (
         <ServiceAdvisorModal
           className="sa-assignment-modal"
+          backdropClassName="sa-assignment-modal-backdrop"
           onClose={() => setDialogOpen(false)}
           title="Pilih & Tugaskan Mekanik"
         >

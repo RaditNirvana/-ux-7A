@@ -17,9 +17,11 @@ export const saInput =
 export function ServiceAdvisorHero({
   title,
   subtitle,
+  artSrc = "/figma-assets/tools-3d.png",
 }: {
   title: string;
   subtitle: string;
+  artSrc?: string;
 }) {
   return (
     <header className="mb-6 flex min-h-[158px] items-center justify-between overflow-hidden rounded-[16px] bg-gradient-to-r from-[#493cdf] via-[#7467cf] to-[#9d9ac2] pl-10 pr-[90px] py-[18px] text-white">
@@ -36,7 +38,7 @@ export function ServiceAdvisorHero({
         aria-hidden="true"
         className="hidden size-[122px] object-cover md:block"
         height={500}
-        src="/figma-assets/tools-3d.png"
+        src={artSrc}
         width={500}
       />
     </header>
@@ -158,10 +160,14 @@ export function ServiceAdvisorStatus({
 
 export function ServiceAdvisorNotice({
   children,
+  className = "",
+  autoDismiss,
   tone = "success",
   onDismiss,
 }: {
   children: ReactNode;
+  className?: string;
+  autoDismiss?: boolean;
   tone?: "success" | "info" | "error";
   onDismiss?: () => void;
 }) {
@@ -173,8 +179,8 @@ export function ServiceAdvisorNotice({
 
   return (
     <TransientNotice
-      autoDismiss={tone !== "info"}
-      className={`rounded-lg border px-3 py-2.5 text-xs leading-5 ${colors[tone]}`}
+      autoDismiss={autoDismiss ?? tone !== "info"}
+      className={`rounded-lg border px-3 py-2.5 text-xs leading-5 ${colors[tone]} ${className}`}
       onDismiss={onDismiss}
       role={tone === "error" ? "alert" : "status"}
     >
@@ -186,11 +192,15 @@ export function ServiceAdvisorNotice({
 export function ServiceAdvisorModal({
   children,
   className = "",
+  backdropClassName = "",
+  headerAside,
   onClose,
   title,
 }: {
   children: ReactNode;
   className?: string;
+  backdropClassName?: string;
+  headerAside?: ReactNode;
   onClose: () => void;
   title: string;
 }) {
@@ -245,7 +255,7 @@ export function ServiceAdvisorModal({
 
   return (
     <div
-      className="fixed inset-0 z-[70] grid place-items-center overflow-y-auto bg-[#222044]/40 p-4"
+      className={`fixed inset-0 z-[70] grid place-items-center overflow-y-auto bg-[#222044]/40 p-4 ${backdropClassName}`}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -253,7 +263,7 @@ export function ServiceAdvisorModal({
       <section
         aria-labelledby="sa-modal-title"
         aria-modal="true"
-        className={`my-auto w-full max-w-[560px] rounded-[16px] bg-[var(--sa-panel)] p-5 shadow-[0_16px_48px_rgba(15,13,45,0.22)] ${className}`}
+        className={`my-auto max-h-[calc(100vh-32px)] w-full overflow-y-auto max-w-[560px] rounded-[16px] bg-[var(--sa-panel)] p-5 shadow-[0_16px_48px_rgba(15,13,45,0.22)] ${className}`}
         ref={dialogRef}
         role="dialog"
       >
@@ -264,6 +274,7 @@ export function ServiceAdvisorModal({
           >
             {title}
           </h2>
+          {headerAside}
           <button
             aria-label="Tutup dialog"
             className="rounded px-2 text-lg leading-7 text-[#68667a] hover:bg-white"

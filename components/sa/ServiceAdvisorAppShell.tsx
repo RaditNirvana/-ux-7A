@@ -108,20 +108,20 @@ export default function ServiceAdvisorAppShell({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--sa-canvas)] text-slate-900 antialiased">
-      <main className="min-h-screen">
+    <div className="h-screen overflow-hidden bg-[var(--sa-canvas)] text-slate-900 antialiased">
+      <main className="relative h-screen overflow-y-auto overflow-x-hidden">
           <button
             aria-controls="sa-sidebar"
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Tutup menu" : "Buka menu"}
-            className="sa-menu-trigger sa-menu-trigger--page"
+          className="sa-menu-trigger sa-menu-trigger--page"
             onClick={() => setMenuOpen((open) => !open)}
             ref={triggerRef}
             type="button"
           >
             <HamburgerIcon />
           </button>
-        <div className="mx-auto w-[calc(100%-32px)] max-w-[1160px] pb-5 pt-6">
+        <div className="ml-[240px] mr-[40px] w-[calc(100%-280px)] max-w-[1160px] pb-5 pt-6">
           {children}
         </div>
       </main>
@@ -169,7 +169,7 @@ export default function ServiceAdvisorAppShell({
           </div>
         </div>
 
-        <nav className="flex-1 space-y-[2px] px-[10px] py-[8px]" aria-label="Sidebar navigasi service advisor">
+        <nav className="flex-1 space-y-[2px] px-[10px] pb-[8px] pt-[19px]" aria-label="Sidebar navigasi service advisor">
           {navigation.map((item) => {
             const active = isActive(item.href);
 
@@ -182,7 +182,7 @@ export default function ServiceAdvisorAppShell({
                 onClick={() => setMenuOpen(false)}
               >
                 <span aria-hidden="true" className="sa-sidebar-icon" data-sa-icon={item.icon} />
-                <span>{item.label}</span>
+                <span>{item.icon === "inspection" ? <>Hasil dan Kebutuhan<br />Service</> : item.label}</span>
               </Link>
             );
           })}

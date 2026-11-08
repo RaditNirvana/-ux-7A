@@ -11,7 +11,11 @@ import { prisma } from "@/lib/prisma";
 
 export const instant = false;
 
-export default async function MekanikPenugasanPage() {
+export default async function MekanikPenugasanPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ id?: string | string[] }>;
+}) {
   const user = await getSessionUser();
   if (!user) redirect("/masuk");
   if (user.role !== "Mekanik") redirect(getRoleDashboardPath(user.role));
@@ -61,6 +65,12 @@ export default async function MekanikPenugasanPage() {
     },
   }));
 
+  const search = await searchParams;
+  const requestedServiceId = Array.isArray(search.id) ? search.id[0] : search.id;
+  const selectedServiceId = assignments.some((assignment) => assignment.id_servis === requestedServiceId)
+    ? requestedServiceId
+    : undefined;
+
   return (
     <div className="min-h-screen bg-[#eef0ff] font-[var(--font-poppins)] text-[#111827] antialiased">
       <MekanikPageHeader
@@ -68,7 +78,7 @@ export default async function MekanikPenugasanPage() {
         name={user.nama}
         availability={mechanic.status_ketersediaan}
       />
-      <MekanikAssignmentScreen assignments={assignments} />
+      <MekanikAssignmentScreen assignments={assignments} selectedServiceId={selectedServiceId} />
     </div>
   );
 }

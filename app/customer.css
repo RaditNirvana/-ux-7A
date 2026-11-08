@@ -115,12 +115,12 @@
 
 .customer-main {
   min-height: calc(100vh - 74px);
-  margin-left: 64px;
+  margin-left: 0;
 }
 
 .customer-page-content {
-  width: min(calc(100% - 74px), 1240px);
-  margin: 0 37px;
+  width: min(calc(100% - 202px), 1240px);
+  margin: 0 auto;
   padding: 32px 0 72px;
 }
 
@@ -495,7 +495,7 @@
   width: 255px;
   max-width: calc(100vw - 42px);
   flex-direction: column;
-  padding: 20px 14px 22px;
+  padding: 0;
   overflow-y: auto;
   background: var(--customer-sidebar);
   color: #fff;
@@ -509,21 +509,33 @@
 }
 
 .customer-sidebar-brand {
-  display: flex;
-  min-height: 54px;
-  align-items: center;
-  gap: 10px;
-  padding: 0 5px 16px;
-  border-bottom: 1px solid rgb(255 255 255 / 15%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 255px;
+  min-height: 64px;
+  padding: 0;
+  border: 0;
   color: #fff;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0;
+}
+
+.customer-sidebar-brand > span {
+  position: absolute;
+  top: 28px;
+  left: 54px;
+  white-space: nowrap;
 }
 
 .customer-sidebar-close {
-  width: 35px;
-  height: 35px;
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  width: 22px;
+  height: 22px;
   filter: brightness(0) invert(1);
 }
 
@@ -532,22 +544,26 @@
 }
 
 .customer-sidebar-links {
+  position: absolute;
+  top: 104px;
+  left: 16px;
   display: flex;
+  width: 220px;
   flex-direction: column;
-  gap: 7px;
-  padding-top: 24px;
+  gap: 8px;
+  padding: 0;
 }
 
 .customer-sidebar-link {
   display: flex;
-  min-height: 47px;
+  min-height: 44px;
   align-items: center;
-  gap: 13px;
-  padding: 0 13px;
-  border-radius: 9px;
+  gap: 10px;
+  padding: 0 14px;
+  border-radius: 10px;
   color: rgb(255 255 255 / 78%);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
   transition: background-color 150ms ease, color 150ms ease;
 }
 
@@ -569,17 +585,21 @@
 
 .customer-sidebar-logout {
   display: flex;
-  min-height: 47px;
+  position: absolute;
+  bottom: 36px;
+  left: 24px;
+  width: 207px;
+  min-height: 48px;
   align-items: center;
-  gap: 13px;
-  margin-top: auto;
-  padding: 0 13px;
+  gap: 10px;
+  margin: 0;
+  padding: 0 14px;
   border: 0;
-  border-radius: 9px;
-  background: transparent;
+  border-radius: 10px;
+  background: #050419;
   color: rgb(255 255 255 / 84%);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   text-align: left;
 }
@@ -1902,10 +1922,6 @@
 
   .customer-main {
     min-height: calc(100vh - 66px);
-  }
-
-  .customer-rail {
-    top: 66px;
   }
 
   .customer-page-content {

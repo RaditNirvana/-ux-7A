@@ -1,7 +1,7 @@
 import type { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
-export const ROLES = ["Customer", "Service Advisor", "Mekanik", "Kasir", "Owner"] as const;
+export const ROLES = ["Owner", "Service Advisor", "Mekanik", "Kasir"] as const;
 export type AccountRole = (typeof ROLES)[number];
 const roleConfig = {
   Customer: { model: "customer", field: "id_customer", prefix: "C", width: 3 },
@@ -22,8 +22,7 @@ export async function nextAccountCode(tx: Prisma.TransactionClient, model: keyof
 
 export async function hasAccountHistory(id: string, role: AccountRole) {
   switch (role) {
-    case "Customer": return (await prisma.kendaraan.count({ where: { customer: { id_pengguna: id } } })) > 0 || (await prisma.servis.count({ where: { kendaraan: { customer: { id_pengguna: id } } } })) > 0;
-    case "Service Advisor": return (await prisma.servis.count({ where: { id_sa: { not: null }, service_advisor: { id_pengguna: id } } })) > 0 || (await prisma.penugasan_mekanik.count({ where: { servis: { service_advisor: { id_pengguna: id } } } })) > 0 || (await prisma.riwayat_stok.count({ where: { service_advisor: { id_pengguna: id } } })) > 0 || (await prisma.pemesanan_sparepart.count({ where: { service_advisor: { id_pengguna: id } } })) > 0;
+    case "Service Advisor": return (await prisma.servis.count({ where: { service_advisor: { id_pengguna: id } } })) > 0 || (await prisma.penugasan_mekanik.count({ where: { servis: { service_advisor: { id_pengguna: id } } } })) > 0 || (await prisma.riwayat_stok.count({ where: { service_advisor: { id_pengguna: id } } })) > 0 || (await prisma.pemesanan_sparepart.count({ where: { service_advisor: { id_pengguna: id } } })) > 0;
     case "Mekanik": return (await prisma.penugasan_mekanik.count({ where: { mekanik: { id_pengguna: id } } })) > 0;
     case "Kasir": return (await prisma.pembayaran.count({ where: { kasir: { id_pengguna: id } } })) > 0;
     case "Owner": return (await prisma.laporan.count({ where: { owner: { id_pengguna: id } } })) > 0;

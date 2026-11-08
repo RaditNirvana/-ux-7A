@@ -48,13 +48,7 @@ export default function CustomerDashboard({
   latestService,
 }: CustomerDashboardProps) {
   const firstVehicle = vehicles[0];
-  const activeServiceLabel = activeServiceCount > 0
-    ? "DIKERJAKAN"
-    : "TIDAK ADA SERVIS AKTIF";
-  const latestStatusLabel =
-    latestService?.status_servis === "Diproses"
-      ? "PROSES SERVIS"
-      : latestService?.status_servis.toUpperCase();
+  const latestStatusLabel = latestService?.status_servis.toUpperCase();
 
   return (
     <div className="customer-page-content customer-dashboard-content">
@@ -89,15 +83,15 @@ export default function CustomerDashboard({
           <p className="customer-summary-value">
             {activeServiceCount} kendaraan di bengkel
           </p>
-          <Link
-            className="customer-summary-chip customer-summary-chip--status"
-            href="/customer/service-status"
-          >
-            {activeServiceCount > 0 && (
+          {latestService ? (
+            <Link
+              className="customer-summary-chip customer-summary-chip--status"
+              href="/customer/service-status"
+            >
               <span aria-hidden="true" className="customer-summary-status-dot" />
-            )}
-            {activeServiceLabel}
-          </Link>
+              {latestStatusLabel}
+            </Link>
+          ) : null}
         </article>
 
         <article className="customer-summary-card customer-summary-card--billing">
@@ -151,9 +145,9 @@ export default function CustomerDashboard({
                 {formatDate(latestService.tanggal_daftar)}
               </p>
               <p className="customer-activity-detail">
-                {latestService.kebutuhan_servis ??
+                {(latestService.kebutuhan_servis ??
                   latestService.hasil_pemeriksaan ??
-                  `Status servis: ${latestService.status_servis}.`}
+                  `Status servis: ${latestService.status_servis}.`).replace(/^\[|\]$/g, "")}
               </p>
               <Link
                 className="customer-activity-action"

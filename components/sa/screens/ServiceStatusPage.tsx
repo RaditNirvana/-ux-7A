@@ -17,9 +17,14 @@ export default function ServiceStatusPage({
 }: {
   services: ServiceAdvisorService[];
 }) {
-  const [selectedId, setSelectedId] = useState(services[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState("");
   const [search, setSearch] = useState("");
   const selected = services.find((service) => service.id === selectedId);
+  const summaryService =
+    selected ?? services.find((service) => service.status === "Selesai") ?? services[0];
+  const completedCount = services.filter((service) => service.status === "Selesai").length;
+  const inProgressCount = services.filter((service) => service.status === "Diproses").length;
+  const waitingCount = services.filter((service) => service.status.startsWith("Menunggu")).length;
   const filteredServices = useMemo(() => {
     const query = search.trim().toLocaleLowerCase("id-ID");
     if (!query) return services;
@@ -38,18 +43,20 @@ export default function ServiceStatusPage({
   }, [search, services]);
 
   return (
-    <section>
+    <section className="sa-status-page">
       <ServiceAdvisorHero
+        artSrc="/figma-assets/sa-status-hero.png"
         title="PROSES DAN STATUS SERVIS"
         subtitle="Pantau tahapan, waktu pengerjaan, serta hasil servis kendaraan secara terpusat."
       />
-      <div className="grid gap-4 xl:grid-cols-[1.7fr_0.8fr]">
+      <div className="sa-status-grid">
         <div className="space-y-4">
           <ServiceAdvisorPanel
+            className="sa-status-list-panel"
             title="Daftar Proses Servis"
-            subtitle={`${services.filter((service) => service.status !== "Selesai" && service.status !== "Batal").length} servis aktif • ${services.length} total servis`}
+            subtitle={`${formatServiceAdvisorDate(new Date())} • ${completedCount} selesai • ${inProgressCount} diproses • ${waitingCount} menunggu`}
           >
-            <label className="mb-3 block">
+            <label className="sa-status-search sr-only">
               <span className="sr-only">Cari proses servis</span>
               <input
                 className={saInput}
@@ -58,8 +65,8 @@ export default function ServiceStatusPage({
                 value={search}
               />
             </label>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] border-collapse text-left text-[11px]">
+            <div className="sa-status-table-wrap overflow-x-auto">
+              <table className="sa-status-table">
                 <thead>
                   <tr className="border-b border-[#8e8b9e]">
                     {["Antrian", "Customer / Plat", "Mekanik", "Status servis", "Update", "Aksi"].map(
@@ -74,7 +81,7 @@ export default function ServiceStatusPage({
                 <tbody>
                   {filteredServices.map((service) => (
                     <tr
-                      className={`border-b border-[#d1cde7] ${
+                      className={`sa-status-row border-b border-[#d1cde7] ${
                         service.id === selectedId ? "bg-[#e3e1f8]" : ""
                       }`}
                       key={service.id}
@@ -82,12 +89,12 @@ export default function ServiceStatusPage({
                       <td className="px-2 py-2.5 font-bold">{service.number}</td>
                       <td className="px-2 py-2.5">
                         {service.customer}
-                        <span className="block text-[10px] text-[#77758a]">
+                        <span className="sa-status-plate block text-[10px] text-[#77758a]">
                           {service.plate}
                         </span>
                       </td>
                       <td className="px-2 py-2.5">{service.mechanic ?? "Belum dipilih"}</td>
-                      <td className="px-2 py-2.5">
+                      <td className="px-2 py-2.5" data-status={service.status}>
                         <ServiceAdvisorStatus value={service.status} />
                       </td>
                       <td className="px-2 py-2.5">
@@ -116,20 +123,26 @@ export default function ServiceStatusPage({
                 </ServiceAdvisorEmpty>
               ) : null}
             </div>
-            <p className="mt-2 text-[10px] text-[#77758a]">
-              Menampilkan {filteredServices.length} dari {services.length} data
-            </p>
+            <div className="sa-status-footer">
+              <p>Menampilkan {filteredServices.length} dari {services.length} data</p>
+              <nav aria-label="Halaman daftar proses servis">
+                <button aria-label="Halaman sebelumnya" disabled type="button">‹</button>
+                <span>1</span>
+                <button aria-label="Halaman selanjutnya" disabled type="button">›</button>
+              </nav>
+            </div>
           </ServiceAdvisorPanel>
-          {selected ? (
+          {summaryService ? (
             <ServiceAdvisorPanel
-              title={`Hasil Servis • ${selected.number} ${selected.customer} • ${selected.plate}`}
+              className="sa-status-summary-panel"
+              title={`${selected ? "Ringkasan Servis" : "Hasil Servis"} • ${summaryService.number} ${summaryService.customer} • ${summaryService.plate}`}
             >
               <p className="text-xs leading-5">
-                {selected.result ?? selected.needs ?? selected.complaint}
+                {summaryService.result ?? summaryService.needs ?? summaryService.complaint}
               </p>
-              {selected.inspection ? (
+              {summaryService.inspection ? (
                 <p className="mt-2 text-[10px] leading-4 text-[#68667a]">
-                  Hasil pemeriksaan: {selected.inspection}
+                  Hasil pemeriksaan: {summaryService.inspection}
                 </p>
               ) : null}
             </ServiceAdvisorPanel>
@@ -137,7 +150,7 @@ export default function ServiceStatusPage({
         </div>
 
         <ServiceAdvisorPanel
-          className="h-fit min-h-[350px]"
+          className="sa-status-detail-panel"
           title="Detail Progres Servis"
           subtitle={
             selected
@@ -147,22 +160,22 @@ export default function ServiceStatusPage({
         >
           {selected ? (
             <>
-              <div className="mb-4 flex items-center justify-between gap-2">
+              <div className="sa-status-current-row mb-4 flex items-center justify-between gap-2">
                 <ServiceAdvisorStatus value={selected.status} />
                 <span className="text-[10px] text-[#68667a]">
                   Update {formatServiceAdvisorTime(selected.updatedAt)}
                 </span>
               </div>
-              <p className="mb-4 text-xs text-[#68667a]">
+              <p className="sa-status-complaint mb-4 text-xs text-[#68667a]">
                 Keluhan: {selected.complaint}
               </p>
               {selected.timeline.length ? (
-                <ol className="space-y-4">
+                <ol className="sa-status-timeline space-y-4">
                   {selected.timeline.map((item, index) => (
-                    <li className="flex gap-3" key={`${item.stage}-${item.time}`}>
+                    <li className="sa-status-timeline-item flex gap-3" key={`${item.stage}-${item.time}`}>
                       <span
                         aria-hidden="true"
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                        className={`sa-status-timeline-marker flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
                           index < selected.timeline.length - 1
                             ? "bg-[#493cdf] text-white"
                             : "border border-[#8d86db] bg-white text-[#493cdf]"
@@ -170,13 +183,13 @@ export default function ServiceStatusPage({
                       >
                         {index < selected.timeline.length - 1 ? "✓" : "•"}
                       </span>
-                      <div>
-                        <p className="text-xs font-bold">{item.stage}</p>
-                        <p className="mt-0.5 text-[10px] text-[#493cdf]">
+                      <div className="sa-status-timeline-copy">
+                        <p className="sa-status-stage text-xs font-bold">{item.stage}</p>
+                        <p className="sa-status-time mt-0.5 text-[10px] text-[#493cdf]">
                           {formatServiceAdvisorTime(item.time)} WIB
                         </p>
                         {item.note ? (
-                          <p className="mt-0.5 text-[10px] leading-4 text-[#68667a]">
+                          <p className="sa-status-note mt-0.5 text-[10px] leading-4 text-[#68667a]">
                             {item.note}
                           </p>
                         ) : null}
@@ -188,7 +201,7 @@ export default function ServiceStatusPage({
                 <ServiceAdvisorEmpty>Belum ada riwayat tahapan servis.</ServiceAdvisorEmpty>
               )}
               {selected.parts.length ? (
-                <div className="mt-4 border-t border-[#d1cde7] pt-3">
+                <div className="sa-status-parts mt-4 border-t border-[#d1cde7] pt-3">
                   <h3 className="text-xs font-bold">Kebutuhan sparepart</h3>
                   <ul className="mt-2 space-y-2 text-[10px]">
                     {selected.parts.map((part) => (
@@ -204,9 +217,7 @@ export default function ServiceStatusPage({
                 </div>
               ) : null}
             </>
-          ) : (
-            <ServiceAdvisorEmpty>Pilih servis untuk melihat progres.</ServiceAdvisorEmpty>
-          )}
+          ) : null}
         </ServiceAdvisorPanel>
       </div>
     </section>

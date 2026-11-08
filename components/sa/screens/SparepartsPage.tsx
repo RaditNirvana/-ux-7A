@@ -37,6 +37,7 @@ export default function SparepartsPage({
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [noticeTone, setNoticeTone] = useState<"success" | "info">("success");
   const [submitting, setSubmitting] = useState(false);
   const selected = spareparts.find((part) => part.id === selectedId);
   const isForm = dialog === "add" || dialog === "edit";
@@ -70,6 +71,7 @@ export default function SparepartsPage({
       }
 
       setDialog(null);
+      setNoticeTone("success");
       setNotice(
         dialog === "add"
           ? "Sparepart berhasil ditambahkan. Daftar sudah diperbarui."
@@ -95,11 +97,22 @@ export default function SparepartsPage({
       }
 
       setDialog(null);
+      setNoticeTone("success");
       setNotice(`${selected.name} dinonaktifkan. Daftar sudah diperbarui.`);
       router.refresh();
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function cancelDeactivate() {
+    if (selected) {
+      setNoticeTone("info");
+      setNotice(
+        `Penghapusan ${selected.id} • ${selected.name} dibatalkan. Data tetap tersimpan; stok dan status tidak berubah.`,
+      );
+    }
+    setDialog(null);
   }
 
   return (
@@ -118,6 +131,9 @@ export default function SparepartsPage({
             : "Pantau persediaan, perbarui jumlah stok, dan kelola kebutuhan sparepart servis."
         }
       />
+      {notice && !dialog ? (
+        <ServiceAdvisorNotice autoDismiss className={`sa-spareparts-toast ${noticeTone === "info" ? "sa-spareparts-toast-info" : ""}`} onDismiss={() => setNotice("")} tone={noticeTone}>{notice}</ServiceAdvisorNotice>
+      ) : null}
       {error && !dialog ? (
         <div className="mb-3">
           <ServiceAdvisorNotice onDismiss={() => setError("")} tone="error">{error}</ServiceAdvisorNotice>
@@ -432,26 +448,6 @@ export default function SparepartsPage({
         </ServiceAdvisorPanel>
 
         <div className="sa-spareparts-right-stack">
-        {notice ? (
-          <ServiceAdvisorNotice onDismiss={() => setNotice("")}>
-            <svg
-              aria-hidden="true"
-              className="sa-spareparts-toast-icon"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.5" />
-              <path
-                d="m6.5 10 2.2 2.2 4.8-4.8"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.5"
-              />
-            </svg>
-            <span>{notice}</span>
-          </ServiceAdvisorNotice>
-        ) : null}
         <ServiceAdvisorPanel
           className="sa-spareparts-detail-panel"
           title="Detail Sparepart"
@@ -524,7 +520,8 @@ export default function SparepartsPage({
       {dialog === "delete" && selected ? (
         <ServiceAdvisorModal
           className="sa-spareparts-delete-modal"
-          onClose={() => setDialog(null)}
+          backdropClassName="sa-spareparts-delete-backdrop"
+          onClose={cancelDeactivate}
           title="Hapus data sparepart?"
         >
           <p className="sa-spareparts-delete-copy">
@@ -570,7 +567,7 @@ export default function SparepartsPage({
           <div className="sa-spareparts-delete-actions">
             <button
               className={saSecondaryButton}
-              onClick={() => setDialog(null)}
+              onClick={cancelDeactivate}
               type="button"
             >
               Batal

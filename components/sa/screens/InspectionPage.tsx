@@ -124,12 +124,9 @@ export default function InspectionPage({
   return (
     <section className="sa-inspection mx-auto w-full max-w-[1160px]">
       <ServiceAdvisorHero
+        artSrc="/figma-assets/sa-inspection-hero.png"
         title="HASIL PEMERIKSAAN SERVIS"
-        subtitle={
-          notice && selected
-            ? `State setelah konfirmasi • Kebutuhan tersedia; servis ${selected.number} dilanjutkan ke penyusunan biaya.`
-            : "Tinjau hasil pemeriksaan mekanik dan pastikan kebutuhan servis tersedia sebelum dilanjutkan."
-        }
+        subtitle="Tinjau hasil pemeriksaan mekanik dan pastikan kebutuhan servis tersedia sebelum dilanjutkan."
       />
       {error ? (
         <div className="mb-3">

@@ -420,29 +420,12 @@ export default function MechanicsPage({
 
           <div className="sa-mechanics-right-stack">
             {notice ? (
-              <ServiceAdvisorNotice onDismiss={() => setNotice("")}>
-                <svg
-                  aria-hidden="true"
-                  className="sa-mechanics-toast-icon"
-                  fill="none"
-                  viewBox="0 0 20 20"
-                >
-                  <circle
-                    cx="10"
-                    cy="10"
-                    r="8"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                  <path
-                    d="m6.5 10 2.2 2.2 4.8-4.8"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                  />
-                </svg>
-                <span>{notice}</span>
+              <ServiceAdvisorNotice className="sa-mechanics-toast" onDismiss={() => setNotice("")}>
+                <span aria-hidden="true" className="sa-mechanics-toast-icon" />
+                <span className="sa-mechanics-toast-copy">
+                  <strong>{notice.split(". ")[0]}</strong>
+                  <span>{notice.split(". ").slice(1).join(". ")}</span>
+                </span>
               </ServiceAdvisorNotice>
             ) : null}
             <ServiceAdvisorPanel
@@ -523,6 +506,7 @@ export default function MechanicsPage({
       {dialog === "delete" && selected ? (
         <ServiceAdvisorModal
           className="sa-mechanics-delete-modal"
+          backdropClassName="sa-content-modal-backdrop"
           onClose={() => setDialog(null)}
           title="Hapus data mekanik?"
         >

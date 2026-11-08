@@ -8,7 +8,7 @@ import { requireCustomerContext } from "@/lib/customer-session";
 
 export const instant = false;
 
-const activeServiceStatuses = ["Selesai", "Batal"];
+const inactiveServiceStatuses = ["Selesai", "Batal"];
 
 export default async function CustomerDashboardPage() {
   const customer = await requireCustomerContext();
@@ -31,11 +31,14 @@ export default async function CustomerDashboardPage() {
       prisma.servis.count({
         where: {
           kendaraan: { id_customer: customer.id_customer },
-          status_servis: { notIn: activeServiceStatuses },
+          status_servis: { notIn: inactiveServiceStatuses },
         },
       }),
       prisma.servis.findFirst({
-        where: { kendaraan: { id_customer: customer.id_customer } },
+        where: {
+          kendaraan: { id_customer: customer.id_customer },
+          status_servis: { notIn: inactiveServiceStatuses },
+        },
         orderBy: [
           { tanggal_daftar: "desc" },
           { id_servis: "desc" },
@@ -69,16 +72,20 @@ export default async function CustomerDashboardPage() {
               status_pembayaran: true,
             },
           },
+          persetujuan_biaya: {
+            select: { status_persetujuan: true },
+          },
         },
       }),
     ]);
 
   const pendingBillAmount = feeDetails.reduce((total, fee) => {
-    const paidAmount = fee.pembayaran
-      .filter((payment) => payment.status_pembayaran === "Lunas")
-      .reduce((sum, payment) => sum + payment.jumlah_bayar.toNumber(), 0);
+    const isApproved = fee.persetujuan_biaya?.status_persetujuan === "Setuju";
+    const isPaid = fee.pembayaran.some(
+      (payment) => payment.status_pembayaran === "Lunas",
+    );
 
-    return total + Math.max(fee.total_biaya.toNumber() - paidAmount, 0);
+    return isApproved && !isPaid ? total + fee.total_biaya.toNumber() : total;
   }, 0);
 
   const dashboardVehicles: CustomerVehicle[] = vehicles;

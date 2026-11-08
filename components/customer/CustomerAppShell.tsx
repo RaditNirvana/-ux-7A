@@ -134,8 +134,6 @@ export default function CustomerAppShell({
         </div>
       </header>
 
-      <div aria-hidden="true" className="customer-rail" />
-
       <main className="customer-main">{children}</main>
 
       <div

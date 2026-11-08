@@ -24,9 +24,17 @@ export async function GET(request: Request) {
   if (!type || !REPORT_TYPES.includes(type as (typeof REPORT_TYPES)[number]) || !period) return Response.json({ error: "Parameter laporan tidak valid." }, { status: 400 });
   try {
     const report = await buildOwnerReport(period.start, period.end);
-    const lines = [type, `Periode: ${q.get("start")} sampai ${q.get("end")}`, `Total servis: ${report.totalServices}`, `Servis selesai: ${report.completed}`, `Servis batal: ${report.cancelled}`, `Pendapatan: Rp ${new Intl.NumberFormat("id-ID").format(report.revenue)}`, `Jumlah transaksi: ${report.transactions.length}`, `Rata-rata durasi (hari): ${report.averageDurationDays?.toFixed(1) ?? "Tidak tersedia"}`, ...report.statuses.map((x) => `Status ${x.status}: ${x.count}`)];
-    if (type === "Laporan Transaksi") lines.push("Rincian transaksi", ...report.transactions.map((x) => `${x.id} | ${x.plate} | Rp ${new Intl.NumberFormat("id-ID").format(x.amount)}`));
-    if (type === "Laporan Pelayanan Servis") lines.push("Rincian pelayanan servis", ...report.services.map((x) => `${x.queue} | ${x.plate} | ${x.status}${x.cancellation ? ` | Alasan: ${x.cancellation}` : ""}`));
+    const idr = (value: number) => `Rp${new Intl.NumberFormat("id-ID").format(value)}`;
+    const lines = [type, `Periode: ${q.get("start")} sampai ${q.get("end")}`];
+    if (type === "Laporan Transaksi") {
+      lines.push(`Total Pendapatan: ${idr(report.revenue)}`, `Jumlah Transaksi: ${report.transactions.length}`, `Rata-rata Nilai Transaksi: ${idr(report.transactions.length ? Math.round(report.revenue / report.transactions.length) : 0)}`, "Tanggal | ID Transaksi | Pelanggan | Metode Pembayaran | Total | Status");
+      lines.push(...report.transactions.map((x) => `${new Intl.DateTimeFormat("id-ID", { dateStyle: "short", timeZone: "UTC" }).format(new Date(x.date))} | ${x.id} | ${x.customer} | ${x.method === "Transfer" ? "Transfer bank" : x.method} | ${idr(x.amount)} | Lunas`));
+    } else if (type === "Laporan Pelayanan Servis") {
+      lines.push(`Total Pelayanan: ${report.totalServices}`, `Kendaraan Dilayani: ${report.totalVehicles}`, `Servis Selesai: ${report.completed}`, `Belum Selesai: ${report.statusGroups.working + report.statusGroups.waiting}`, "Tanggal | ID Servis | Pelanggan | No. Polisi | Jenis Pelayanan | Status Penyelesaian");
+      lines.push(...report.services.map((x) => `${new Intl.DateTimeFormat("id-ID", { dateStyle: "short", timeZone: "UTC" }).format(new Date(x.date))} | ${x.id} | ${x.customer} | ${x.plate} | ${x.serviceType} | ${x.status === "Selesai" ? "Selesai" : x.status === "Diproses" ? "Sedang Dikerjakan" : "Menunggu"}`));
+    } else {
+      lines.push(`Total Servis: ${report.totalServices}`, `Kendaraan Dilayani: ${report.totalVehicles}`, `Pelayanan Terbanyak: ${report.serviceTypes[0]?.name ?? "—"} (${report.serviceTypes[0]?.count ?? 0} · ${report.serviceTypes[0]?.percent ?? 0}%)`, "Status Pelayanan", `Menunggu: ${report.statusGroups.waiting}`, `Sedang Dikerjakan: ${report.statusGroups.working}`, `Selesai: ${report.statusGroups.completed}`, "Jenis Pelayanan Terbanyak", ...report.serviceTypes.map((x) => `${x.name}: ${x.count} · ${x.percent}%`));
+    }
     const bytes = makePdf(lines);
     return new Response(bytes, { headers: { "Content-Type": "application/pdf", "Content-Disposition": "attachment; filename=laporan-mitra-jaya.pdf", "Cache-Control": "no-store" } });
   } catch (error) { return ownerError(error, "PDF belum dapat dibuat."); }

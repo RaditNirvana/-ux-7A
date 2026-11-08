@@ -2,6 +2,6 @@ import OwnerReportScreen from "@/components/owner/OwnerReportScreen";
 
 export const instant = false;
 
-export default function OwnerReportPage() {
-  return <OwnerReportScreen />;
+export default async function OwnerReportPage({ searchParams }: { searchParams: Promise<{ awal?: string; akhir?: string; jenis?: string; langkah?: string }> }) {
+  return <OwnerReportScreen initialSearch={await searchParams} />;
 }

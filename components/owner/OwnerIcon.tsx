@@ -13,6 +13,12 @@ export default function OwnerIcon({ name, size = 18 }: { name: string; size?: nu
     case "check": return <svg {...common}><path d="m5 12 4.2 4.2L19 6.5"/></svg>;
     case "alert": return <svg {...common}><path d="M12 3 2.7 20h18.6L12 3zM12 9v5M12 17.5h.01"/></svg>;
     case "arrow": return <svg {...common}><path d="M4 12h15M13 6l6 6-6 6"/></svg>;
+    case "arrow-left": return <svg {...common}><path d="M20 12H5M11 6l-6 6 6 6"/></svg>;
+    case "chevron-down": return <svg {...common}><path d="m6 9 6 6 6-6"/></svg>;
+    case "download": return <svg {...common}><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 20h14"/></svg>;
+    case "save": return <svg {...common}><path d="M5 3h12l4 4v14H3V3h2zM7 3v6h10V3M7 21v-8h10v8"/></svg>;
+    case "eye": return <svg {...common}><path d="M2.5 12s3.2-6 9.5-6 9.5 6 9.5 6-3.2 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.5"/></svg>;
+    case "eye-off": return <svg {...common}><path d="m3 3 18 18M10.6 6.2A10.7 10.7 0 0 1 12 6c6.3 0 9.5 6 9.5 6a17 17 0 0 1-3.2 3.8M6.1 6.1C3.8 7.7 2.5 12 2.5 12s3.2 6 9.5 6a10 10 0 0 0 3.2-.5M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>;
     default: return <svg {...common}><circle cx="12" cy="12" r="8"/></svg>;
   }
 }

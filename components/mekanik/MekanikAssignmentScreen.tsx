@@ -20,12 +20,16 @@ function formatKilometers(value: number | null) {
 
 export default function MekanikAssignmentScreen({
   assignments,
+  selectedServiceId,
 }: {
   assignments: MekanikAssignmentRecord[];
+  selectedServiceId?: string;
 }) {
   const [filter, setFilter] = useState<AssignmentFilter>("Semua");
   const [search, setSearch] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(
+    assignments.find((assignment) => assignment.id_servis === selectedServiceId)?.id_data_mekanik ?? null,
+  );
   const counts = useMemo(
     () =>
       Object.fromEntries(

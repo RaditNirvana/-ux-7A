@@ -28,26 +28,26 @@ export default async function ServiceAdvisorDashboardPage() {
 
   return (
     <section className="text-[var(--sa-page-ink)]">
-      <div className="ml-[7px] flex h-[200px] items-center justify-between overflow-hidden rounded-[16px] bg-gradient-to-r from-[#493cdf] from-[5.769%] to-[#9d9ac2] to-[99.038%] pl-[34px] pr-[47px]">
-        <div className="max-w-[640px]">
-          <h1 className="text-[32px] font-bold leading-[normal] tracking-[-0.64px] text-white">
+      <div className="sa-dashboard-hero">
+        <div className="sa-dashboard-hero-copy">
+          <h1 className="sa-dashboard-hero-title">
             HALO, SERVICE ADVISOR!
           </h1>
-          <p className="mt-[7px] text-[17px] font-normal leading-[normal] tracking-[-0.34px] text-white">
+          <p className="sa-dashboard-hero-subtitle">
             Kelola pendaftaran servis, penugasan mekanik, kebutuhan sparepart, dan pantau proses servis kendaraan dalam satu tempat
           </p>
         </div>
         <Image
           alt="Peralatan servis"
           className="h-[183px] w-[184px] shrink-0 object-cover"
-          height={500}
+          height={183}
           loading="eager"
-          src="/figma-assets/tools-3d.png"
-          width={500}
+          src="/figma-assets/sa-dashboard-hero.png"
+          width={184}
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-[minmax(0,735fr)_minmax(0,426fr)] gap-4">
+      <div className="sa-dashboard-operational-grid mt-6 grid">
         <section>
           <div className="flex h-8 items-start justify-between px-[11px]">
             <h2 className="text-[18px] font-bold leading-6">
@@ -117,12 +117,12 @@ export default async function ServiceAdvisorDashboardPage() {
         </section>
       </div>
 
-      <section className="mt-6 h-[194px] rounded-[16px] bg-[var(--sa-panel)] px-[11px] pt-[10px]">
+      <section className="sa-dashboard-summary mt-6 h-[194px] rounded-[16px] bg-[var(--sa-panel)] px-[11px] pt-[10px]">
         <h2 className="text-[28px] font-bold leading-[34px]">
           RINGKASAN OPERASIONAL
         </h2>
 
-        <div className="mt-[18px] grid max-w-[1032px] grid-cols-3 text-center">
+        <div className="sa-dashboard-summary-grid mt-[18px] grid max-w-[1032px] grid-cols-3 text-center">
           {summary.map((item) => {
             const icon = summaryIcons[item.icon];
 
