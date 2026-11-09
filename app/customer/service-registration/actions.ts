@@ -62,6 +62,29 @@ export async function createServiceRegistrationAction(input: {
     const encodedCatatan = `Waktu kedatangan: ${input.waktu_kedatangan.trim()}`.slice(0, 255);
 
     const newService = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`LOCK TABLE "servis" IN SHARE ROW EXCLUSIVE MODE`;
+
+      const duplicateWindow = new Date(Date.now() - 5 * 60 * 1000);
+      const recentDuplicate = await tx.servis.findFirst({
+        where: {
+          id_kendaraan: input.id_kendaraan,
+          tanggal_daftar: desiredDate,
+          keluhan: encodedKeluhan,
+          catatan_kedatangan: encodedCatatan,
+          status_verifikasi: "Menunggu",
+          status_servis: "Menunggu Verifikasi",
+          riwayat_status_servis: {
+            some: {
+              tahap: "Pendaftaran diajukan",
+              waktu: { gte: duplicateWindow },
+            },
+          },
+        },
+        select: { id_servis: true },
+      });
+
+      if (recentDuplicate) return recentDuplicate;
+
       // Find all services to determine next available ID
       const allServices = await tx.servis.findMany({
         select: { id_servis: true, nomor_antrian: true },

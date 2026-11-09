@@ -90,6 +90,9 @@ export default async function ServiceRegistrationPage({
     <ServiceRegistrationManager
       initialServices={serializedServices}
       initialVehicles={vehicles}
+      key={serializedServices
+        .map(({ id_servis, status_servis }) => `${id_servis}:${status_servis}`)
+        .join("|")}
       preselectedVehicleId={query?.vehicle}
     />
   );

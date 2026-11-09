@@ -96,7 +96,7 @@ export async function PUT(request: NextRequest) {
         data: {
           hasil_pemeriksaan: hasil,
           kebutuhan_servis: kebutuhan,
-          status_servis: "Menunggu Persetujuan",
+          status_servis: "Diperiksa",
         },
       });
 

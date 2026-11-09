@@ -118,16 +118,10 @@ export default function ServiceRegistrationManager({
   const [formVehicleId, setFormVehicleId] = useState<string>(
     preselectedVehicleId || initialVehicles[0]?.id_kendaraan || ""
   );
-  const [formJenisLayanan, setFormJenisLayanan] = useState<string>("Pemeriksaan mesin");
-  const [formTanggal, setFormTanggal] = useState<string>(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().split("T")[0];
-  });
-  const [formWaktu, setFormWaktu] = useState<string>("13.00 WIB");
-  const [formKeluhan, setFormKeluhan] = useState<string>(
-    "Mesin bergetar saat akselerasi dan terdengar suara tidak biasa."
-  );
+  const [formJenisLayanan, setFormJenisLayanan] = useState<string>("");
+  const [formTanggal, setFormTanggal] = useState<string>("");
+  const [formWaktu, setFormWaktu] = useState<string>("");
+  const [formKeluhan, setFormKeluhan] = useState<string>("");
 
   // Edit Form State
   const [editJenisLayanan, setEditJenisLayanan] = useState<string>("");
@@ -191,12 +185,10 @@ export default function ServiceRegistrationManager({
 
   function handleStartCreate() {
     setFormVehicleId(vehicles[0]?.id_kendaraan || "");
-    setFormJenisLayanan("Pemeriksaan mesin");
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    setFormTanggal(d.toISOString().split("T")[0]);
-    setFormWaktu("13.00 WIB");
-    setFormKeluhan("Mesin bergetar saat akselerasi dan terdengar suara tidak biasa.");
+    setFormJenisLayanan("");
+    setFormTanggal("");
+    setFormWaktu("");
+    setFormKeluhan("");
     setFormErrors({});
     setActionError("");
     setView("form");
@@ -245,36 +237,6 @@ export default function ServiceRegistrationManager({
         return;
       }
 
-      // Optimistically add or refresh list
-      const newServiceItem: CustomerServiceRegistrationItem = {
-        id_servis: res.data.id_servis,
-        nomor_antrian: "A-...",
-        tanggal_daftar: new Date(formTanggal).toISOString(),
-        keluhan: `[${formJenisLayanan}] ${formKeluhan}`,
-        catatan_kedatangan: `Waktu kedatangan: ${formWaktu}`,
-        status_verifikasi: "Menunggu",
-        estimasi_waktu_tunggu: null,
-        tanggal_pemeriksaan: null,
-        hasil_pemeriksaan: null,
-        kebutuhan_servis: null,
-        tanggal_mulai: null,
-        tanggal_selesai: null,
-        status_servis: "Menunggu Verifikasi",
-        hasil_servis: null,
-        alasan_batal: null,
-        id_kendaraan: formVehicleId,
-        kendaraan: activeVehicle,
-        riwayat_status_servis: [
-          {
-            id_riwayat: 0,
-            tahap: "Pendaftaran diajukan",
-            keterangan: "Pendaftaran servis online berhasil diajukan oleh customer",
-            waktu: new Date().toISOString(),
-          },
-        ],
-      };
-
-      setServices((prev) => [newServiceItem, ...prev]);
       setDialogState("kirim");
       router.refresh();
     } catch (err) {
@@ -474,12 +436,7 @@ export default function ServiceRegistrationManager({
               {services.map((item) => {
                 const chip = getChipClass(item.status_servis);
                 const details = parseServiceDetails(item);
-                const canModify = [
-                  "Menunggu Verifikasi",
-                  "Menunggu Penugasan",
-                  "Ditugaskan",
-                  "Siap Dikerjakan",
-                ].includes(item.status_servis);
+                const canModify = item.status_servis === "Menunggu Verifikasi";
                 const isFinishedOrCanceled =
                   item.status_servis === "Selesai" || item.status_servis === "Batal";
 
