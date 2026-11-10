@@ -7,7 +7,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 const links = [
   { href: "/owner/dashboard", label: "Dashboard", icon: "dashboard" },
-  { href: "/owner/laporan", label: "Buat Laporan", icon: "report" },
+  { href: "/owner/buat-laporan", label: "Buat Laporan", icon: "report" },
   { href: "/owner/akun", label: "Kelola Akun", icon: "users" },
 ] as const;
 

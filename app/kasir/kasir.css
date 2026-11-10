@@ -20,6 +20,7 @@
 @media print{.receipt-heading{display:none!important}.kasir-receipt{width:100%;max-width:none;margin:0;padding:16mm;border:0;border-radius:0;box-shadow:none}.kasir-receipt-page{max-width:none!important}.kasir-toast{display:none!important}}
 .akun-heading{align-items:center}.akun-heading-actions{display:flex;gap:9px}.akun-table{min-width:1050px}.akun-account-form{display:grid;grid-template-columns:1fr 1fr;gap:15px}.kasir-account-form label{display:grid;gap:7px;color:#687386;font-size:11px;font-weight:600}.kasir-account-form input,.kasir-account-form select{height:41px;width:100%;padding:0 11px;border:1px solid #dce2ed;border-radius:7px;outline:none;color:#293449;background:white;font:inherit;font-weight:400}.kasir-account-form input:focus,.kasir-account-form select:focus{border-color:#3548db;box-shadow:0 0 0 3px #3548db1c}.kasir-account-role{display:grid;align-content:center;gap:7px;padding-top:16px;color:#687386;font-size:11px}.kasir-account-role b{font-size:12px;color:#354054}.kasir-tabs button:disabled{cursor:default;color:#a5adbb}
 @media(max-width:720px){.akun-heading{align-items:flex-start;flex-direction:column;gap:14px}.akun-heading-actions{width:100%}.akun-heading-actions button{flex:1}.kasir-account-form{grid-template-columns:1fr}}
+
 .kasir-rincian-list{max-height:calc(100vh - 330px)}.kasir-payments-ready{max-height:210px}.kasir-payments-table{max-height:170px}
 .kasir-accounts-list{max-height:calc(100vh - 330px)}
 /* Kasir shared shell: Figma frame 90:1662 */
@@ -86,3 +87,25 @@
 @media(max-width:720px){.kasir-sidebar{width:100%;min-width:0;height:auto;min-height:82px;flex-basis:auto;padding:0}.kasir-sidebar::before{display:none}.kasir-profile{position:relative;top:auto;left:auto;margin:10px 12px}.kasir-sidebar nav{position:relative;top:auto;left:auto;width:100%;display:flex;gap:6px;overflow:auto;padding:0 10px 10px}.kasir-nav-item{flex:0 0 auto}.kasir-nav-item:first-child{margin:0}.kasir-logout{display:none}.kasir-shell{height:auto;min-height:100vh;overflow:auto;display:block}.kasir-main{width:100%;height:auto}.kasir-header{height:60px;flex-basis:60px}.kasir-header strong{left:50%;top:21px;transform:translateX(-50%);white-space:nowrap}.kasir-header-avatar{right:16px;top:13px}.kasir-content,.kasir-dashboard-content{height:auto;min-height:calc(100vh - 60px);overflow:visible;padding:14px}.kasir-dashboard{height:auto;display:flex;flex-direction:column;gap:12px}.kasir-dashboard-banner{flex:0 0 150px}.kasir-dashboard-banner h1{font-size:20px}.kasir-dashboard-banner p{width:min(65%,620px)}.kasir-dashboard-tools{left:auto;right:5px;width:32%;height:139px}.kasir-dashboard-stats,.kasir-active-services{position:relative;top:auto;left:auto;width:100%;height:auto}.kasir-dashboard-stats{grid-template-columns:1fr;gap:8px}.kasir-dashboard-stat{height:100px}.kasir-active-services{min-height:326px;overflow:auto}.kasir-active-table{left:12px;width:calc(100% - 24px);min-width:800px}.kasir-active-heading{left:14px}.kasir-dashboard-content{padding:14px}}
 .kasir-dashboard-banner h1{top:24px}.kasir-dashboard-banner p{top:60px}.kasir-dashboard-stat-label{top:22px}.kasir-dashboard-stat-value{top:49px}.kasir-dashboard-stat-note{top:83px}
 .kasir-sidebar::before{z-index:0}.kasir-profile,.kasir-sidebar nav,.kasir-logout{z-index:1}
+/* Kasir uses the same overlay navigation behavior as the other actor shells. */
+.kasir-shell{position:relative;display:block;width:100%;height:100vh;min-height:0;overflow:hidden}
+.kasir-main{width:100%;height:100vh;min-width:0}
+.kasir-header{height:74px;flex:0 0 74px;width:100%;z-index:10}
+.kasir-header strong{left:calc(50% - 106px);top:25px}
+.kasir-content{width:100%;height:calc(100vh - 74px)}
+.kasir-sidebar{position:fixed;z-index:50;inset:0 auto 0 0;width:242px;min-width:0;max-width:85vw;height:100dvh;flex:none;overflow-x:hidden;overflow-y:auto;background:#f6f9ff;box-shadow:12px 0 36px rgba(15,23,42,.18);transform:translateX(-105%);transition:transform 280ms cubic-bezier(.2,.75,.25,1)}
+.kasir-sidebar.is-open{transform:translateX(0)}
+.kasir-shell.is-menu-open .kasir-content{overflow:hidden}
+.kasir-sidebar::before{z-index:0;left:15px;top:84px;bottom:0;width:calc(100% - 30px);height:auto}
+.kasir-profile,.kasir-sidebar nav,.kasir-logout{z-index:1}
+.kasir-sidebar nav{width:calc(100% - 30px)}
+.kasir-logout{left:50%;transform:translateX(-50%)}
+.kasir-sidebar-backdrop{position:fixed;z-index:40;inset:0;background:rgba(14,14,56,.4);opacity:0;pointer-events:none;transition:opacity 220ms ease}
+.kasir-sidebar-backdrop.is-open{opacity:1;pointer-events:auto}
+.kasir-menu-trigger{position:fixed;z-index:30;top:20px;left:22px;width:34px;height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0;border:0;border-radius:8px;background:#475cfa;box-shadow:0 3px 9px rgba(73,60,223,.24);cursor:pointer;transition:left 280ms cubic-bezier(.2,.75,.25,1),background-color 150ms ease}
+.kasir-menu-trigger:hover{background:#392dc4}
+.kasir-menu-trigger:focus-visible,.kasir-sidebar a:focus-visible,.kasir-sidebar button:focus-visible{outline:3px solid #9a92ff;outline-offset:3px}
+.kasir-menu-trigger>span{width:16px;height:2px;border-radius:2px;background:#fff}
+.kasir-shell.is-menu-open .kasir-menu-trigger{z-index:60;left:250px}
+@media print{.kasir-menu-trigger,.kasir-sidebar-backdrop{display:none!important}}
+@media(max-width:720px){.kasir-shell{height:100dvh;min-height:0;overflow:hidden}.kasir-main{width:100%;height:100dvh}.kasir-header{height:60px;flex-basis:60px}.kasir-header strong{left:50%;top:21px;transform:translateX(-50%);white-space:nowrap}.kasir-header-avatar{right:16px;top:13px}.kasir-content,.kasir-dashboard-content{width:100%;height:calc(100dvh - 60px);min-height:0;overflow:auto;padding:14px}.kasir-menu-trigger{top:13px;left:15px}.kasir-shell.is-menu-open .kasir-menu-trigger{left:calc(min(242px, 85vw) + 8px)}.kasir-sidebar{width:242px;max-width:85vw;height:100dvh;padding:0}.kasir-sidebar::before{display:block;left:15px;top:84px;bottom:0;width:calc(100% - 30px);height:auto}.kasir-profile{position:absolute;top:18px;left:23px;margin:0}.kasir-sidebar nav{position:absolute;top:99px;left:15px;width:calc(100% - 30px);display:grid;gap:9px;overflow:visible;padding:0}.kasir-nav-item{flex:none}.kasir-logout{position:absolute;left:50%;bottom:34px;display:block;width:159px;margin:0}.kasir-dashboard-content{padding:14px}}

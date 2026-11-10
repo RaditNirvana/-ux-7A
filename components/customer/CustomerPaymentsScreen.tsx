@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { readLatestPaymentStatus } from "@/app/customer/payments/actions";
 
 type Bill = { id: string; number: string; date: string; status: string; vehicle: string; plate: string; needs: string | null; fee: { service: number; parts: number; total: number; approval: string; approvedAt: string | null; payment: null | { id: string; status: string; confirmation: string; method: string; date: string } } };
 type Props = { services: Bill[]; initialServiceId?: string };
@@ -16,14 +17,16 @@ export default function CustomerPaymentsScreen({ services, initialServiceId }: P
   const [screen, setScreen] = useState<Screen>(() => !initialBill ? "list" : initialBill.fee.approval === "Menunggu" ? "review" : initialBill.fee.payment?.status === "Lunas" ? "success" : initialBill.fee.payment ? "instruction" : "choose");
   const [method, setMethod] = useState<"Transfer" | "QRIS">(initialBill?.fee.payment?.method === "QRIS" ? "QRIS" : "Transfer");
   const [busy, setBusy] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
   const [error, setError] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
   const [cancelReason, setCancelReason] = useState("");
   const [cancelMode, setCancelMode] = useState(false);
 
-  const updateSelected = (id: string, update: (bill: Bill) => Bill) => {
+  const updateSelected = useCallback((id: string, update: (bill: Bill) => Bill) => {
     setItems((current) => current.map((item) => item.id === id ? update(item) : item));
     setSelected((current) => current?.id === id ? update(current) : current);
-  };
+  }, []);
   const approve = async (decision: "Setuju" | "Batal") => {
     if (!selected) return;
     setBusy(true); setError("");
@@ -50,17 +53,46 @@ export default function CustomerPaymentsScreen({ services, initialServiceId }: P
   };
   const checkPayment = async () => {
     if (!selected) return;
-    setBusy(true); setError("");
+    setCheckingStatus(true); setError(""); setStatusMessage("");
     try {
-      const response = await fetch(`/api/customer/pembayaran/${selected.id}`, { cache: "no-store" });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error ?? "Status pembayaran belum dapat dimuat.");
-      updateSelected(selected.id, (bill) => ({ ...bill, fee: { ...bill.fee, payment: body.payment } }));
-      setScreen(body.state === "success" ? "success" : body.state === "failure" ? "failure" : "instruction");
+      const result = await readLatestPaymentStatus(selected.id);
+      if (result.state === "error") throw new Error(result.error ?? "Status pembayaran tidak dapat dimuat.");
+      if (result.payment) updateSelected(selected.id, (bill) => ({ ...bill, fee: { ...bill.fee, payment: result.payment } }));
+      if (result.state === "success") setScreen("success");
+      else if (result.state === "failure") setScreen("failure");
+      else setStatusMessage("Pembayaran belum divalidasi Kasir. Coba lagi beberapa saat.");
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Status pembayaran belum dapat dimuat."); }
-    finally { setBusy(false); }
+    finally { setCheckingStatus(false); }
   };
-  const open = (bill: Bill, next: Screen) => { setSelected(bill); setMethod(bill.fee.payment?.method === "QRIS" ? "QRIS" : "Transfer"); setScreen(next); setError(""); };
+
+  const selectedId = selected?.id;
+  const paymentStatus = selected?.fee.payment?.status;
+  useEffect(() => {
+    if (screen !== "instruction" || !selectedId || paymentStatus !== "Menunggu") return;
+    let active = true;
+    const timer = window.setInterval(() => {
+      startTransition(() => {
+        void readLatestPaymentStatus(selectedId).then((result) => {
+          if (!active) return;
+          if (result.state === "error") {
+            setError(result.error ?? "Status pembayaran tidak dapat dimuat.");
+            return;
+          }
+          if (result.payment) updateSelected(selectedId, (bill) => ({ ...bill, fee: { ...bill.fee, payment: result.payment } }));
+          if (result.state === "success") setScreen("success");
+          else if (result.state === "failure") setScreen("failure");
+          else setStatusMessage("Pembayaran belum divalidasi Kasir. Coba lagi beberapa saat.");
+        }).catch(() => {
+          if (active) setError("Status pembayaran belum dapat dimuat.");
+        });
+      });
+    }, 7000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [screen, selectedId, paymentStatus, updateSelected]);
+  const open = (bill: Bill, next: Screen) => { setSelected(bill); setMethod(bill.fee.payment?.method === "QRIS" ? "QRIS" : "Transfer"); setScreen(next); setError(""); setStatusMessage(""); };
 
   if (!selected || screen === "list") return <main className="customer-payment-page">
     <p className="customer-payment-eyebrow">Customer</p><h1>Biaya &amp; Pembayaran</h1><p className="customer-payment-subtitle">Lihat rincian biaya servis dan status pembayaran kendaraan Anda.</p>
@@ -73,7 +105,7 @@ export default function CustomerPaymentsScreen({ services, initialServiceId }: P
       <h1>{screen === "review" ? "Persetujuan biaya servis" : screen === "instruction" ? "Instruksi pembayaran" : screen === "failure" ? "Pembayaran belum berhasil" : "Tagihan servis"}</h1>
       {screen === "review" ? <div className="customer-payment-columns"><section className="customer-payment-card"><h2>Rincian pekerjaan</h2><p>{selected.needs ?? "Pekerjaan sesuai hasil pemeriksaan servis."}</p><div className="customer-payment-row"><span>Biaya jasa</span><b>{money(selected.fee.service)}</b></div><div className="customer-payment-row"><span>Biaya sparepart</span><b>{money(selected.fee.parts)}</b></div><div className="customer-payment-total"><span>Total estimasi</span><b>{money(selected.fee.total)}</b></div><small className="customer-payment-footnote">Estimasi dapat berubah apabila ditemukan kebutuhan tambahan. Setiap perubahan akan dikonfirmasikan kepada Anda.</small></section><section className="customer-payment-card"><h2>Keputusan Anda</h2><p>Periksa rincian pekerjaan dan tentukan keputusan Anda.</p>{error && <p className="customer-payment-error" role="alert">{error}</p>}<button className="customer-payment-primary" disabled={busy} onClick={() => approve("Setuju")} type="button">{busy ? "Menyimpan…" : "Setujui & lanjut bayar"}</button>{cancelMode && <label className="customer-payment-reason">Alasan pembatalan<textarea maxLength={255} onChange={(event) => setCancelReason(event.target.value)} value={cancelReason} />{!cancelReason.trim() && <small>Alasan pembatalan wajib diisi.</small>}</label>}<button className="customer-payment-secondary" disabled={busy || (cancelMode && !cancelReason.trim())} onClick={() => cancelMode ? approve("Batal") : setCancelMode(true)} type="button">{cancelMode ? "Konfirmasi pembatalan" : "Tolak & ajukan pembatalan"}</button></section></div>
       : screen === "choose" || screen === "failure" ? <>{screen === "failure" && <p className="customer-payment-error" role="alert">Transaksi sebelumnya belum terkonfirmasi. Pilih metode lalu coba lagi.</p>}<div className="customer-payment-columns"><aside className="customer-payment-summary"><h2>Ringkasan tagihan</h2><strong>{money(selected.fee.total)}</strong><p>Biaya disetujui • {date(selected.fee.approvedAt ?? selected.date)}</p><small>Pembayaran dikonfirmasi setelah transaksi berhasil.</small></aside><section className="customer-payment-card"><h2>Pilih metode pembayaran</h2><label className="customer-payment-method"><input checked={method === "Transfer"} name="payment-method" onChange={() => setMethod("Transfer")} type="radio" /><span><b>Transfer bank • Virtual account</b></span></label><label className="customer-payment-method"><input checked={method === "QRIS"} name="payment-method" onChange={() => setMethod("QRIS")} type="radio" /><span><b>QRIS</b></span></label>{error && <p className="customer-payment-error" role="alert">{error}</p>}<button className="customer-payment-primary" disabled={busy} onClick={createPayment} type="button">{busy ? "Memproses…" : screen === "failure" ? "Coba pembayaran lagi" : "Konfirmasi pembayaran"}</button></section></div></>
-      : <div className="customer-payment-columns"><aside className="customer-payment-summary"><h2>Ringkasan tagihan</h2><strong>{money(selected.fee.total)}</strong><p>Biaya disetujui • {date(selected.fee.approvedAt ?? selected.date)}</p><small>Pembayaran dikonfirmasi setelah transaksi berhasil.</small></aside><section className="customer-payment-card"><h2>Instruksi pembayaran</h2>{method === "Transfer" ? <><p>Nomor Virtual Account</p><strong className="customer-payment-code">8808 {selected.id.padStart(4, "0")} {String(selected.fee.total).replace(/\D/g, "").padStart(8, "0")}</strong><p>Transfer sesuai nominal tagihan. Berlaku 30 menit.</p></> : <><div aria-label="Kode QR pembayaran QRIS" className="customer-payment-qr">QRIS</div><p>Scan QRIS di atas sebelum 3 menit.</p></>}<p className="customer-payment-wait"><span className="customer-payment-spinner" />Menunggu pembayaran...</p>{error && <p className="customer-payment-error" role="alert">{error}</p>}<button className="customer-payment-primary" disabled={busy} onClick={checkPayment} type="button">{busy ? "Memeriksa…" : "Lihat Status Pembayaran"}</button></section></div>}
+      : <div className="customer-payment-columns"><aside className="customer-payment-summary"><h2>Ringkasan tagihan</h2><strong>{money(selected.fee.total)}</strong><p>Biaya disetujui • {date(selected.fee.approvedAt ?? selected.date)}</p><small>Pembayaran dikonfirmasi setelah transaksi berhasil.</small></aside><section className="customer-payment-card"><h2>Instruksi pembayaran</h2>{method === "Transfer" ? <><p>Nomor Virtual Account</p><strong className="customer-payment-code">8808 {selected.id.padStart(4, "0")} {String(selected.fee.total).replace(/\D/g, "").padStart(8, "0")}</strong><p>Transfer sesuai nominal tagihan. Berlaku 30 menit.</p></> : <><div aria-label="Kode QR pembayaran QRIS" className="customer-payment-qr">QRIS</div><p>Scan QRIS di atas sebelum 3 menit.</p></>}<p className="customer-payment-wait"><span className="customer-payment-spinner" />Menunggu pembayaran...</p>{statusMessage && <p className="customer-payment-error" role="status">{statusMessage}</p>}{error && <p className="customer-payment-error" role="alert">{error}</p>}<button className="customer-payment-primary" disabled={busy || checkingStatus} onClick={checkPayment} type="button">{checkingStatus ? "Memuat status…" : "Lihat Status Pembayaran"}</button></section></div>}
     </>}
   </main>;
 }

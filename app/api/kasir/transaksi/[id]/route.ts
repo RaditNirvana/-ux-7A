@@ -21,6 +21,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     if (!transaction) return Response.json({ error: "Bukti transaksi tidak ditemukan." }, { status: 404 });
     const payment = transaction.pembayaran;
     const service = payment.rincian_biaya.servis;
+    if (service.status_servis !== "Selesai" || payment.status_pembayaran !== "Lunas") return Response.json({ error: service.status_servis !== "Selesai" ? "Menunggu servis selesai." : "Menunggu validasi pembayaran." }, { status: 409 });
     return Response.json({
       id: transaction.id_transaksi, date: transaction.tanggal_transaksi,
       paymentId: payment.id_pembayaran, paymentDate: payment.tanggal_pembayaran,

@@ -64,6 +64,10 @@ export default async function CustomerServiceStatusPage() {
                   {service.status_servis}
                 </span>
               </header>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg bg-[#f8faff] p-3"><span className="text-[10px] text-[#818a99]">Progres servis</span><p className="mt-1 text-[12px] font-semibold text-[#354054]">{service.status_servis}</p></div>
+                <div className="rounded-lg bg-[#f8faff] p-3"><span className="text-[10px] text-[#818a99]">Status pembayaran</span><p className="mt-1 text-[12px] font-semibold text-[#354054]">{service.rincian_biaya?.pembayaran[0] ? `${service.rincian_biaya.pembayaran[0].status_pembayaran} · ${service.rincian_biaya.pembayaran[0].konfirmasi_pembayaran}` : service.rincian_biaya?.persetujuan_biaya?.status_persetujuan === "Setuju" ? "Belum dibayar" : "Belum ada tagihan"}</p></div>
+              </div>
               <div className="mt-4 grid gap-3 text-[12px] sm:grid-cols-2">
                 <div>
                   <span className="text-[#818a99]">Kendaraan</span>

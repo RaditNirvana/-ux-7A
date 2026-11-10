@@ -37,6 +37,7 @@ export default function OwnerReportScreen({ initialSearch = {} }: { initialSearc
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+
   useEffect(() => {
     if (!type || !start || !end) return;
     let cancelled = false;
@@ -46,7 +47,7 @@ export default function OwnerReportScreen({ initialSearch = {} }: { initialSearc
     }).catch((cause: unknown) => { if (!cancelled) setError(cause instanceof Error ? cause.message : "Data laporan gagal dimuat."); });
     return () => { cancelled = true; };
   }, [type, start, end]);
-  function updateUrl(nextStart = start, nextEnd = end, nextType = type, step?: "jenis" | "periode") { window.history.replaceState(null, "", `/owner/buat-laporan${qs(nextStart, nextEnd, nextType || undefined, step)}`); }
+  function updateUrl(nextStart = start, nextEnd = end, nextType = type, step?: "jenis" | "periode") { router.replace(`/owner/buat-laporan${qs(nextStart, nextEnd, nextType || undefined, step)}`, { scroll: false }); }
   function goToTypes() {
     setError(""); if (!start || !end || end < start) { setError("Periode akhir harus sama dengan atau setelah periode awal."); return; }
     updateUrl(start, end, "", "jenis"); setType(""); setReport(null); setPhase("types");

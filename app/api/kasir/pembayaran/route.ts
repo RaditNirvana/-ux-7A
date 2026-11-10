@@ -56,7 +56,6 @@ export async function POST(request: Request) {
           await tx.riwayat_status_servis.create({ data: { id_servis: payment.rincian_biaya.servis.id_servis, tahap: "Validasi pembayaran gagal", keterangan: reason } });
           return { rejected: true };
         }
-        if (payment.rincian_biaya.servis.status_servis !== "Selesai") throw new KasirError("Pembayaran dapat divalidasi setelah mekanik menyelesaikan servis.", 409);
         const transactionId = await nextCode(tx, "transaksi", "id_transaksi", "T", 3);
         await tx.pembayaran.update({ where: { id_pembayaran: payment.id_pembayaran }, data: { status_pembayaran: "Lunas", konfirmasi_pembayaran: "Terkonfirmasi", id_kasir: user.id_kasir } });
         await tx.transaksi.create({ data: { id_transaksi: transactionId, id_pembayaran: payment.id_pembayaran, tanggal_transaksi: getJakartaDateBounds().date } });

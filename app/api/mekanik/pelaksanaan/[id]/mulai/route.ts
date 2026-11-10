@@ -19,7 +19,7 @@ export async function POST(
       const service = await tx.servis.findUnique({
         where: { id_servis: id },
         include: {
-          rincian_biaya: { include: { persetujuan_biaya: true } },
+          rincian_biaya: { include: { persetujuan_biaya: true, pembayaran: { select: { status_pembayaran: true } } } },
           penggunaan_sparepart: { select: { id_sparepart: true, jumlah_sparepart: true } },
         },
       });
@@ -28,6 +28,9 @@ export async function POST(
       }
       if (!service.rincian_biaya || service.rincian_biaya.persetujuan_biaya?.status_persetujuan !== "Setuju") {
         throw new MekanikApiError("Customer belum menyetujui biaya servis atau rincian biaya belum tersedia.", 409);
+      }
+      if (!service.rincian_biaya.pembayaran.some((payment) => payment.status_pembayaran === "Menunggu" || payment.status_pembayaran === "Lunas")) {
+        throw new MekanikApiError("Customer belum mengirim pembayaran servis.", 409);
       }
 
       const startedAt = new Date();
