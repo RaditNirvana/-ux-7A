@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { requireCustomerContext } from "@/lib/customer-session";
+import Link from "next/link";
 
 export const instant = false;
 
@@ -19,6 +20,7 @@ export default async function CustomerServiceStatusPage() {
       riwayat_status_servis: {
         orderBy: { waktu: "desc" },
       },
+      rincian_biaya: { include: { persetujuan_biaya: true, pembayaran: { orderBy: { tanggal_pembayaran: "desc" }, take: 1 } } },
     },
     orderBy: [{ tanggal_daftar: "desc" }, { id_servis: "desc" }],
   });
@@ -97,6 +99,11 @@ export default async function CustomerServiceStatusPage() {
                     {service.kebutuhan_servis}
                   </p>
                 </div>
+              )}
+              {service.rincian_biaya?.persetujuan_biaya?.status_persetujuan === "Setuju" && service.rincian_biaya.pembayaran[0]?.status_pembayaran !== "Lunas" && (
+                <Link className="customer-payment-primary customer-service-pay-link" href={`/customer/payments?serviceId=${service.id_servis}`}>
+                  Bayar sekarang
+                </Link>
               )}
               <div className="mt-5 border-t border-[#edf0f5] pt-4">
                 <h3 className="text-[11px] font-semibold text-[#3c4659]">

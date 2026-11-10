@@ -155,6 +155,14 @@ export default function CustomerDashboard({
               >
                 Lihat status servis
               </Link>
+              {latestService.perlu_pembayaran && (
+                <Link
+                  className="customer-activity-action customer-activity-pay"
+                  href={`/customer/payments?serviceId=${latestService.id_servis}`}
+                >
+                  Bayar sekarang
+                </Link>
+              )}
             </>
           ) : (
             <div className="customer-activity-empty">

@@ -50,6 +50,7 @@ export default async function CustomerDashboardPage() {
           status_servis: true,
           hasil_pemeriksaan: true,
           kebutuhan_servis: true,
+          rincian_biaya: { select: { persetujuan_biaya: { select: { status_persetujuan: true } }, pembayaran: { select: { status_pembayaran: true } } } },
           kendaraan: {
             select: {
               merek: true,
@@ -93,6 +94,7 @@ export default async function CustomerDashboardPage() {
     ? {
         ...latestService,
         tanggal_daftar: latestService.tanggal_daftar.toISOString(),
+        perlu_pembayaran: latestService.rincian_biaya?.persetujuan_biaya?.status_persetujuan === "Setuju" && !latestService.rincian_biaya.pembayaran.some((payment) => payment.status_pembayaran === "Lunas"),
       }
     : null;
 

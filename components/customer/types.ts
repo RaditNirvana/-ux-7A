@@ -13,6 +13,7 @@ export type CustomerServiceActivity = {
   keluhan: string;
   tanggal_daftar: string;
   status_servis: string;
+  perlu_pembayaran?: boolean;
   hasil_pemeriksaan: string | null;
   kebutuhan_servis: string | null;
   kendaraan: {
