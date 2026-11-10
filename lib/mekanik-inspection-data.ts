@@ -24,7 +24,6 @@ export async function getMekanikInspectionData(idMekanik: string) {
       },
     }),
     prisma.sparepart.findMany({
-      where: { status_aktif: "Aktif" },
       orderBy: { nama_sparepart: "asc" },
       select: { id_sparepart: true, nama_sparepart: true, satuan: true, stok: true },
     }),
@@ -65,9 +64,6 @@ export async function getMekanikInspectionData(idMekanik: string) {
         stok: part.sparepart.stok,
         jumlah_sparepart: part.jumlah_sparepart,
         bagian_diganti: part.bagian_diganti ?? "",
-        status_ketersediaan_sparepart: part.sparepart.stok >= part.jumlah_sparepart
-          ? "Tersedia"
-          : "Tidak tersedia",
       })),
       recent: servis.riwayat_status_servis.map((item) => ({
         tahap: item.tahap,

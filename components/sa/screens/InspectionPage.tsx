@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveServiceInspection } from "@/app/sa/actions";
 import { TransientNotice } from "@/components/notifications/TransientNotice";
@@ -21,6 +22,11 @@ type InspectionPart = {
   quantity: number;
   area: string;
 };
+
+function getStockStatus(stock: number, needed: number) {
+  if (stock === 0) return "Kosong";
+  return stock >= needed ? "Cukup" : "Kurang";
+}
 
 export default function InspectionPage({
   services,
@@ -47,10 +53,6 @@ export default function InspectionPage({
   const servicePickerRef = useRef<HTMLDivElement>(null);
   const servicePickerButtonRef = useRef<HTMLButtonElement>(null);
   const selected = services.find((service) => service.id === selectedId);
-  const availableParts = useMemo(
-    () => spareparts.filter((part) => part.stock > 0),
-    [spareparts],
-  );
   const partsJson = JSON.stringify(
     parts.map(({ id_sparepart, quantity, area }) => ({
       id_sparepart,
@@ -275,7 +277,10 @@ export default function InspectionPage({
                       const item = spareparts.find(
                         ({ id }) => id === part.id_sparepart,
                       );
-                      const available = !!item && item.stock >= part.quantity;
+                      const stockStatus = item
+                        ? getStockStatus(item.stock, part.quantity)
+                        : "Kosong";
+                      const available = stockStatus === "Cukup";
                       return (
                         <tr key={part.id_sparepart}>
                           <td className="font-bold">{part.id_sparepart}</td>
@@ -307,8 +312,16 @@ export default function InspectionPage({
                           </td>
                           <td className="sa-inspection-availability-cell">
                             <span data-available={available}>
-                              {available ? "Tersedia" : "Tidak tersedia"}
+                              {stockStatus}
                             </span>
+                            {!available ? (
+                              <Link
+                                className="ml-2 inline-flex text-[#493cdf] underline underline-offset-2 hover:text-[#3527bd]"
+                                href="/sa/pemesanan-sparepart"
+                              >
+                                Pesan sparepart
+                              </Link>
+                            ) : null}
                             <button
                               aria-label={`Hapus ${item?.name ?? part.id_sparepart}`}
                               className="sa-inspection-remove-part"
@@ -352,7 +365,7 @@ export default function InspectionPage({
                       value=""
                     >
                       <option value="">+ Tambah sparepart</option>
-                      {availableParts
+                      {spareparts
                         .filter(
                           ({ id }) => !parts.some((part) => part.id_sparepart === id),
                         )
@@ -435,14 +448,24 @@ export default function InspectionPage({
                   {notice
                     ? "Kebutuhan tersedia"
                     : selected
-                      ? "Seluruh kebutuhan tersedia"
+                      ? parts.some((part) => {
+                          const item = spareparts.find(({ id }) => id === part.id_sparepart);
+                          return !item || item.stock < part.quantity;
+                        })
+                        ? "Stok kebutuhan belum mencukupi"
+                        : "Seluruh kebutuhan tersedia"
                       : "Belum ada servis dipilih"}
                 </p>
                 <p>
                   {notice
                     ? "Servis dilanjutkan ke tahap penyusunan biaya."
                     : selected
-                      ? "Konfirmasi untuk melanjutkan servis ke tahap penyusunan biaya."
+                      ? parts.some((part) => {
+                          const item = spareparts.find(({ id }) => id === part.id_sparepart);
+                          return !item || item.stock < part.quantity;
+                        })
+                        ? "Pesan sparepart untuk kebutuhan yang stoknya kurang atau kosong."
+                        : "Konfirmasi untuk melanjutkan servis ke tahap penyusunan biaya."
                       : "Pilih servis untuk melihat hasil pemeriksaan dan kebutuhan."}
                 </p>
               </div>

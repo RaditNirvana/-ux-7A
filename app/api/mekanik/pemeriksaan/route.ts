@@ -83,12 +83,12 @@ export async function PUT(request: NextRequest) {
 
       const selectedParts = parts.length
         ? await tx.sparepart.findMany({
-            where: { id_sparepart: { in: parts.map((part) => part.id_sparepart) }, status_aktif: "Aktif" },
-            select: { id_sparepart: true, stok: true },
+            where: { id_sparepart: { in: parts.map((part) => part.id_sparepart) } },
+            select: { id_sparepart: true },
           })
         : [];
       if (selectedParts.length !== parts.length) {
-        throw new MekanikApiError("Sparepart aktif tidak ditemukan.");
+        throw new MekanikApiError("Sparepart tidak ditemukan.");
       }
 
       await tx.servis.update({
@@ -102,17 +102,12 @@ export async function PUT(request: NextRequest) {
 
       await tx.penggunaan_sparepart.deleteMany({ where: { id_servis: idServis } });
       for (const part of parts) {
-        const sparepart = selectedParts.find(({ id_sparepart }) => id_sparepart === part.id_sparepart);
-        const availability = sparepart && sparepart.stok >= part.jumlah_sparepart
-          ? "Tersedia"
-          : "Tidak tersedia";
         await tx.penggunaan_sparepart.create({
           data: {
             id_servis: idServis,
             id_sparepart: part.id_sparepart,
             jumlah_sparepart: part.jumlah_sparepart,
             bagian_diganti: part.bagian_diganti || null,
-            status_ketersediaan_sparepart: availability,
           },
         });
       }

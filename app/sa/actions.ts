@@ -370,26 +370,27 @@ export async function saveServiceInspection(
           ({ id_sparepart }) => id_sparepart === part.id_sparepart,
         );
 
-        if (!stockItem || stockItem.status_aktif !== "Aktif" || stockItem.stok < part.jumlah_sparepart) {
+        if (!stockItem || stockItem.stok < part.jumlah_sparepart) {
           unavailable.push(stockItem?.nama_sparepart ?? part.id_sparepart);
         }
       }
 
-      const reason = unavailable.length
-        ? `Servis dibatalkan karena stok tidak mencukupi: ${unavailable.join(", ")}.`
-        : null;
+      if (unavailable.length) {
+        throw new ServiceAdvisorActionError(
+          `Stok belum mencukupi untuk ${unavailable.join(", ")}. Pesan sparepart terlebih dahulu.`,
+        );
+      }
+
       await tx.servis.update({
         where: { id_servis: idServis },
-        data: reason
-          ? { status_servis: "Batal", alasan_batal: reason, id_sa: idSa }
-          : { status_servis: "Diperiksa", id_sa: idSa },
+        data: { status_servis: "Diperiksa", id_sa: idSa },
       });
 
       await tx.riwayat_status_servis.create({
         data: {
           id_servis: idServis,
-          tahap: reason ? "Servis dibatalkan" : "Konfirmasi kebutuhan servis",
-          keterangan: reason ?? service.kebutuhan_servis,
+          tahap: "Konfirmasi kebutuhan servis",
+          keterangan: service.kebutuhan_servis,
         },
       });
     });

@@ -14,7 +14,6 @@ type Part = {
   stok: number;
   jumlah_sparepart: number;
   bagian_diganti: string;
-  status_ketersediaan_sparepart: string;
 };
 type PartInput = Pick<Part, "id_sparepart" | "jumlah_sparepart" | "bagian_diganti">;
 
@@ -250,7 +249,6 @@ export default function MekanikInspectionScreen({
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto">
                 {parts.map((part, index) => {
                   const choice = data.spareparts.find((item) => item.id_sparepart === part.id_sparepart);
-                  const available = choice ? choice.stok >= part.jumlah_sparepart : false;
                   return <div className="grid min-h-[54px] grid-cols-[32px_minmax(0,1fr)_72px_88px] items-center gap-2" key={`${index}-${part.id_sparepart}`}>
                     <span className="grid size-8 place-items-center rounded-lg bg-[#ffedd5]"><Image alt="" height={16} src="/figma-assets/mekanik-quick-inspection.svg" width={16} /></span>
                     <div className="min-w-0">
@@ -258,7 +256,7 @@ export default function MekanikInspectionScreen({
                         <option value="">Nama sparepart</option>
                         {data.spareparts.map((item) => <option key={item.id_sparepart} value={item.id_sparepart}>{item.nama_sparepart} - Stok {item.stok} {item.satuan}</option>)}
                       </select>
-                      {choice ? <span className={`block truncate pt-0.5 text-[8px] ${available ? "text-[#15803d]" : "text-[#dc2626]"}`}>{available ? `Tersedia - stok ${choice.stok} ${choice.satuan}` : `Tidak tersedia - stok ${choice.stok} ${choice.satuan}`}</span> : null}
+                      {choice ? <span className="block truncate pt-0.5 text-[8px] text-[#6b7280]">Stok: {choice.stok} {choice.satuan}</span> : null}
                       <input aria-label={`Bagian yang diganti ${index + 1}`} className="block w-full border-0 bg-transparent p-0 text-[8px] leading-3 outline-none placeholder:text-[#9ca3af]" maxLength={100} onChange={(event) => updatePart(index, "bagian_diganti", event.target.value)} placeholder="Bagian yang diganti" value={part.bagian_diganti} />
                     </div>
                     <div className="flex h-[32px] items-center justify-center rounded-[8px] border border-[#e5e7eb] text-[10px]">

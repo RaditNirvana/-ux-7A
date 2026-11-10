@@ -88,7 +88,9 @@ function mapService(
       quantity: item.jumlah_sparepart,
       unit: item.sparepart.satuan,
       stock: item.sparepart.stok,
-      availability: item.status_ketersediaan_sparepart,
+      availability: item.sparepart.stok >= item.jumlah_sparepart
+        ? "Tersedia"
+        : "Tidak tersedia",
       area: item.bagian_diganti,
     })),
   };
@@ -188,10 +190,26 @@ export async function getServiceAdvisorInspectionData() {
         in: ["Ditugaskan", "Diperiksa", "Diproses", "Menunggu Persetujuan"],
       },
     }),
-    getServiceAdvisorSpareparts(),
+    prisma.sparepart.findMany({
+      include: { supplier: { select: { nama_supplier: true } } },
+      orderBy: { id_sparepart: "asc" },
+    }),
   ]);
 
-  return { services, spareparts };
+  return {
+    services,
+    spareparts: spareparts.map((part) => ({
+      id: part.id_sparepart,
+      name: part.nama_sparepart,
+      category: part.kategori,
+      unit: part.satuan,
+      stock: part.stok,
+      minimum: part.batas_minimum,
+      location: part.lokasi_penyimpanan,
+      updatedAt: part.tanggal_diperbarui.toISOString(),
+      supplier: part.supplier?.nama_supplier ?? null,
+    })),
+  };
 }
 
 export async function getServiceAdvisorMechanics(): Promise<
