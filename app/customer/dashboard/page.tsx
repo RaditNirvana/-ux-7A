@@ -81,12 +81,11 @@ export default async function CustomerDashboardPage() {
     ]);
 
   const pendingBillAmount = feeDetails.reduce((total, fee) => {
-    const isApproved = fee.persetujuan_biaya?.status_persetujuan === "Setuju";
     const isPaid = fee.pembayaran.some(
       (payment) => payment.status_pembayaran === "Lunas",
     );
 
-    return isApproved && !isPaid ? total + fee.total_biaya.toNumber() : total;
+    return !isPaid ? total + fee.total_biaya.toNumber() : total;
   }, 0);
 
   const dashboardVehicles: CustomerVehicle[] = vehicles;
@@ -94,7 +93,7 @@ export default async function CustomerDashboardPage() {
     ? {
         ...latestService,
         tanggal_daftar: latestService.tanggal_daftar.toISOString(),
-        perlu_pembayaran: latestService.rincian_biaya?.persetujuan_biaya?.status_persetujuan === "Setuju" && !latestService.rincian_biaya.pembayaran.some((payment) => payment.status_pembayaran === "Lunas"),
+        perlu_pembayaran: Boolean(latestService.rincian_biaya) && !latestService.rincian_biaya?.pembayaran.some((payment) => payment.status_pembayaran === "Lunas"),
       }
     : null;
 

@@ -66,7 +66,7 @@ export default async function CustomerServiceStatusPage() {
               </header>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg bg-[#f8faff] p-3"><span className="text-[10px] text-[#818a99]">Progres servis</span><p className="mt-1 text-[12px] font-semibold text-[#354054]">{service.status_servis}</p></div>
-                <div className="rounded-lg bg-[#f8faff] p-3"><span className="text-[10px] text-[#818a99]">Status pembayaran</span><p className="mt-1 text-[12px] font-semibold text-[#354054]">{service.rincian_biaya?.pembayaran[0] ? `${service.rincian_biaya.pembayaran[0].status_pembayaran} · ${service.rincian_biaya.pembayaran[0].konfirmasi_pembayaran}` : service.rincian_biaya?.persetujuan_biaya?.status_persetujuan === "Setuju" ? "Belum dibayar" : "Belum ada tagihan"}</p></div>
+                <div className="rounded-lg bg-[#f8faff] p-3"><span className="text-[10px] text-[#818a99]">Status pembayaran</span><p className="mt-1 text-[12px] font-semibold text-[#354054]">{!service.rincian_biaya ? "Belum ada tagihan" : service.rincian_biaya.pembayaran[0]?.status_pembayaran === "Lunas" ? "Lunas" : service.rincian_biaya.pembayaran[0] && service.riwayat_status_servis.some((entry) => entry.tahap === "Validasi pembayaran gagal" && entry.waktu >= service.rincian_biaya!.pembayaran[0]!.tanggal_pembayaran) ? "Belum berhasil" : service.rincian_biaya.pembayaran[0] ? "Menunggu validasi" : "Belum dibayar"}</p></div>
               </div>
               <div className="mt-4 grid gap-3 text-[12px] sm:grid-cols-2">
                 <div>
@@ -104,9 +104,9 @@ export default async function CustomerServiceStatusPage() {
                   </p>
                 </div>
               )}
-              {service.rincian_biaya?.persetujuan_biaya?.status_persetujuan === "Setuju" && service.rincian_biaya.pembayaran[0]?.status_pembayaran !== "Lunas" && (
+              {service.rincian_biaya && service.rincian_biaya.pembayaran[0]?.status_pembayaran !== "Lunas" && (!service.rincian_biaya.pembayaran[0] || service.riwayat_status_servis.some((entry) => entry.tahap === "Validasi pembayaran gagal" && entry.waktu >= service.rincian_biaya!.pembayaran[0]!.tanggal_pembayaran)) && (
                 <Link className="customer-payment-primary customer-service-pay-link" href={`/customer/payments?serviceId=${service.id_servis}`}>
-                  Bayar sekarang
+                  {service.rincian_biaya.pembayaran[0] ? "Coba lagi" : "Bayar sekarang"}
                 </Link>
               )}
               <div className="mt-5 border-t border-[#edf0f5] pt-4">
